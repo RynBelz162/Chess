@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api", "Chess.Api\Chess.Api.csproj", "{22A53792-3F7C-4D64-B488-EDB13C076BBD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal

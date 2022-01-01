@@ -2,7 +2,7 @@ using Orleans;
 
 namespace Chess.Api.Grains;
 
-internal interface IPlayerGrain : IGrainWithStringKey
+public interface IPlayerGrain : IGrainWithGuidKey
 {
-    Task<string> Test();
+    Task<Guid> CreateGame();
 }

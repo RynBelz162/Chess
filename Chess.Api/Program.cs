@@ -4,7 +4,7 @@ await Host.CreateDefaultBuilder(args)
     .UseOrleans((ctx, siloBuilder) =>
     {
         siloBuilder.UseLocalhostClustering();
-        siloBuilder.AddMemoryGrainStorage("definitions");
+        siloBuilder.AddMemoryGrainStorage("chess");
     })
     .ConfigureWebHostDefaults(webBuilder =>
     {

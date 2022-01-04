@@ -43,4 +43,14 @@ public class PlayerGrain : Grain, IPlayerGrain
         _playerState.State.CurrentGameId = newGameGuid;
         return Task.FromResult(newGameGuid);
     }
+    
+    public Task JoinGame(Guid gameId)
+    {
+        _grainFactory
+            .GetGrain<IGrameGrain>(gameId)
+            .Join(this.GetPrimaryKey());
+            
+        _playerState.State.CurrentGameId = gameId;
+        return Task.CompletedTask;
+    }
 }

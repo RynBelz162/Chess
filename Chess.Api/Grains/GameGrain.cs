@@ -30,4 +30,15 @@ public class GameGrain : Grain, IGrameGrain
 
         return Task.CompletedTask;
     }
+
+    public Task Join(Guid playerId)
+    {
+        if (_gameState.State == null || _gameState.State.PlayerTwoId.HasValue)
+        {
+            throw new ApplicationException("Trying to join an invalid game session");
+        }
+
+        _gameState.State.PlayerTwoId = playerId;
+        return Task.CompletedTask;
+    }
 }

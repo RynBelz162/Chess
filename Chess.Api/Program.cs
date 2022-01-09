@@ -2,6 +2,7 @@
 using Orleans;
 using Microsoft.AspNetCore.ResponseCompression;
 using Chess.Api.Hubs;
+using Chess.Api.Services;
 
 await Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(webBuilder =>
@@ -55,5 +56,9 @@ await Host.CreateDefaultBuilder(args)
             });
         })
         .RegisterHub<GameHub>();
+    })
+    .ConfigureServices(collection =>
+    {
+        collection.AddTransient<ISetupService, SetupService>();
     })
     .RunConsoleAsync();

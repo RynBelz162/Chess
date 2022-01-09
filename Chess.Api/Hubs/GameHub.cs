@@ -16,19 +16,25 @@ public class GameHub : Hub
     public async Task Create(Guid playerId)
     {
         var gameId = await _grainFactory
-            .GetGrain<IPlayerGrain>(playerId)
+            .GetGrain<IUserGrain>(playerId)
             .CreateGame();
 
         await Clients.Caller.SendAsync("GameCreated", gameId);
+        await AddToGroup(playerId, gameId);
     }
 
     public async Task Join(Guid gameId, Guid playerId)
     {
         await _grainFactory
-            .GetGrain<IPlayerGrain>(playerId)
+            .GetGrain<IUserGrain>(playerId)
             .JoinGame(gameId);
 
         await Clients.Group(gameId.ToString())
             .SendAsync("PlayerJoined", playerId);
+
+        await AddToGroup(playerId, gameId);
     }
+
+    private async Task AddToGroup(Guid playerId, Guid gameId) =>
+        await Groups.AddToGroupAsync(playerId.ToString(), gameId.ToString());
 }

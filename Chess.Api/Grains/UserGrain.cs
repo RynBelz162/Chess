@@ -1,16 +1,17 @@
+using Chess.Api.Constants;
 using Chess.Api.Models;
 using Orleans;
 using Orleans.Runtime;
 
 namespace Chess.Api.Grains;
 
-public class PlayerGrain : Grain, IPlayerGrain
+public class UserGrain : Grain, IUserGrain
 {
-    private readonly IPersistentState<PlayerState> _playerState;
+    private readonly IPersistentState<UserState> _playerState;
     private readonly IGrainFactory _grainFactory;
 
-    public PlayerGrain(
-        [PersistentState(stateName: "player", storageName: "chess")] IPersistentState<PlayerState> player,
+    public UserGrain(
+        [PersistentState(stateName: "player", storageName: "chess")] IPersistentState<UserState> player,
         IGrainFactory grainFactory)
     {
         _playerState = player;
@@ -19,9 +20,9 @@ public class PlayerGrain : Grain, IPlayerGrain
 
     public override Task OnActivateAsync()
     {
-        if (_playerState.State.PlayerId == default)
+        if (_playerState.State.UserId == default)
         {
-            _playerState.State.PlayerId = this.GetPrimaryKey();
+            _playerState.State.UserId = this.GetPrimaryKey();
         }
 
         return Task.CompletedTask;
@@ -38,7 +39,7 @@ public class PlayerGrain : Grain, IPlayerGrain
 
         var gameId = _grainFactory
             .GetGrain<IGrameGrain>(newGameGuid)
-            .Create(_playerState.State.PlayerId);
+            .Create(_playerState.State.UserId);
 
         _playerState.State.CurrentGameId = newGameGuid;
         return Task.FromResult(newGameGuid);
@@ -49,7 +50,7 @@ public class PlayerGrain : Grain, IPlayerGrain
         _grainFactory
             .GetGrain<IGrameGrain>(gameId)
             .Join(this.GetPrimaryKey());
-            
+        
         _playerState.State.CurrentGameId = gameId;
         return Task.CompletedTask;
     }

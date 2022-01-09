@@ -1,9 +1,9 @@
 namespace Chess.Api.Models;
 
 [Serializable]
-public class PlayerState
+public class UserState
 {
-    public Guid PlayerId { get; set; }
+    public Guid UserId { get; set; }
     public string? Name { get; set; }
     public Guid? CurrentGameId { get; set; }
 }

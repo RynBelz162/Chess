@@ -4,7 +4,9 @@ namespace Chess.Api.Models;
 public class GameState 
 {
     public Guid GameId { get; init; }
-    public Guid PlayerOneId { get; init; }
-    public Guid? PlayerTwoId { get; set; }
+    public Player? PlayerOne { get; init; }
+    public Player? PlayerTwo { get; set; }
+    public Board Board { get; set; } = new Board();
+
     public DateTime CreatedOn { get; init; }
 }

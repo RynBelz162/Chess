@@ -1,6 +1,9 @@
+using Chess.Api.Models.Pieces;
+
 namespace Chess.Api.Models;
 
 public class Square
 {
-    // TODO: Square properties will go here
+    public Piece? Piece { get; set; }
+    public bool IsOccupied => Piece != null;
 }

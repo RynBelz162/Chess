@@ -1,14 +1,12 @@
 using Chess.Api.Constants;
 using Chess.Api.Models;
 using Chess.Api.Models.Pieces;
-using File = Chess.Api.Constants.File;
+using ChessFile = Chess.Api.Constants.ChessFile;
 
 namespace Chess.Api.Services;
 
 public class SetupService : ISetupService
 {
-    private const int NumberOfRanks = 8;
-
     public ChessColor DeterminePlayerColor()
     {
         var random = new Random(new Guid().GetHashCode());
@@ -22,26 +20,48 @@ public class SetupService : ISetupService
         _ => throw new ArgumentException(nameof(color)),
     };
 
-    public Board InitializeBoard()
+    public Board InitializeBoard() => new Board()
     {
-        var board = new Board();
+        Pieces = InitializePieces()
+    };
+    
 
-        foreach (int file in Enum.GetValues(typeof(File)))
-        {
-            for (int i = 1; i <= NumberOfRanks; i++)
-            {
-                board.Squares.Add($"{file}{i}", new ());
-            }
-        }
-
-        board.Pieces = InitializePieces();
-
-        return board;
+    private Dictionary<char, Piece> InitializePieces()
+    {
+        var result = new Dictionary<char, Piece>();
+        AddWhite(result);
+        AddBlack(result);
+        return result;
     }
 
-    private List<Piece> InitializePieces()
+    private void AddWhite(Dictionary<char, Piece> pieceDict)
     {
-        // TODO: implement
-        return new List<Piece>();
+        pieceDict.Add('Q', new Queen());
+        pieceDict.Add('K', new King());
+
+        CreatePieces<Rook>(pieceDict, 'R', 2);
+        CreatePieces<Knight>(pieceDict, 'N', 2);
+        CreatePieces<Bishop>(pieceDict, 'B', 2);
+        CreatePieces<Pawn>(pieceDict, 'P', 8);
+    }
+
+    private void AddBlack(Dictionary<char, Piece> pieceDict)
+    {
+        pieceDict.Add('q', new Queen());
+        pieceDict.Add('k', new King());
+
+        CreatePieces<Rook>(pieceDict, 'r', 2);
+        CreatePieces<Knight>(pieceDict, 'n', 2);
+        CreatePieces<Bishop>(pieceDict, 'b', 2);
+        CreatePieces<Pawn>(pieceDict, 'p', 8);
+    }
+
+    private void CreatePieces<T>(Dictionary<char, Piece> pieceDict, char identifier, int numberToCreate) where T : Piece
+    {
+        for (int i = 0; i < numberToCreate; i++)
+        {
+            var piece = Activator.CreateInstance<T>();
+            pieceDict.Add(identifier, piece);
+        }
     }
 }

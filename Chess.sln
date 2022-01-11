@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api", "Chess.Api\Chess.Api.csproj", "{22A53792-3F7C-4D64-B488-EDB13C076BBD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api.Tests", "Chess.Api.Tests\Chess.Api.Tests.csproj", "{C89A48BC-3BFE-4726-88D0-B433DA4D5238}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +20,10 @@ Global
 		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22A53792-3F7C-4D64-B488-EDB13C076BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C89A48BC-3BFE-4726-88D0-B433DA4D5238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C89A48BC-3BFE-4726-88D0-B433DA4D5238}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C89A48BC-3BFE-4726-88D0-B433DA4D5238}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C89A48BC-3BFE-4726-88D0-B433DA4D5238}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

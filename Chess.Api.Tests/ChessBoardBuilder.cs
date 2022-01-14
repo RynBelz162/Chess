@@ -20,9 +20,9 @@ public class ChessBoardBuilder
         return this;
     }
 
-    public ChessBoardBuilder CreatePieceAt(char pieceIdentifier, ChessFile file, int rank)
+    public ChessBoardBuilder CreatePieceAt(char pieceIdentifier, ChessFile file, int rank, int numOfMoves = 0)
     {
-        var piece = CreatePiece(pieceIdentifier);
+        var piece = CreatePiece(pieceIdentifier, numOfMoves);
         piece.CurrentFile = file;
         piece.CurrentRank = rank;
         var targetSquare = $"{file}{rank}";
@@ -31,22 +31,22 @@ public class ChessBoardBuilder
         return this;
     }
 
-    private static Piece CreatePiece(char identifier) => identifier switch
+    private static Piece CreatePiece(char identifier, int numOfMoves) => identifier switch
     {
         // Black
-        'k' => new King { Color = ChessColor.Black },
-        'q' => new Queen { Color = ChessColor.Black },
-        'r' => new Rook { Color = ChessColor.Black },
-        'n' => new Knight { Color = ChessColor.Black },
-        'b' => new Bishop { Color = ChessColor.Black },
-        'p' => new Pawn { Color = ChessColor.Black },
+        'k' => new King { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
+        'q' => new Queen { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
+        'r' => new Rook { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
+        'n' => new Knight { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
+        'b' => new Bishop { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
+        'p' => new Pawn { Color = ChessColor.Black, NumberOfMoves = numOfMoves },
         // White
-        'K' => new King { Color = ChessColor.White },
-        'Q' => new Queen { Color = ChessColor.White },
-        'E' => new Rook { Color = ChessColor.White },
-        'N' => new Knight { Color = ChessColor.White },
-        'B' => new Bishop { Color = ChessColor.White },
-        'P' => new Pawn { Color = ChessColor.White },
-        _ => new Pawn { Color = ChessColor.White } ,
+        'K' => new King { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'Q' => new Queen { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'E' => new Rook { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'N' => new Knight { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'B' => new Bishop { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'P' => new Pawn { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        _ => new Pawn { Color = ChessColor.White, NumberOfMoves = numOfMoves } ,
     };
 }

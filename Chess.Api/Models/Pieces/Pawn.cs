@@ -24,7 +24,7 @@ public class Pawn : Piece
         return moves;
     }
 
-    private void AddDiagonalMove(List<string> moves, Board board, ChessFile? file, int rank)
+    private void AddDiagonalMove(ICollection<string> moves, Board board, ChessFile? file, int rank)
     {
         if (!file.HasValue)
         {
@@ -34,9 +34,10 @@ public class Pawn : Piece
         var targetSquare = $"{file.Value}{rank}";
         var IsOccupied = board.IsSquareOccupied(targetSquare);
 
-        // TODO: EN PASSANT 🇫🇷 🥖 (https://www.youtube.com/watch?v=MUxAdu5hvKk)
+        // EN PASSANT 🇫🇷 🥖 (https://www.youtube.com/watch?v=MUxAdu5hvKk)
         if (!IsOccupied)
         {
+            CheckForEnPassant(moves, board, file.Value, rank);
             return;
         }
 
@@ -44,6 +45,28 @@ public class Pawn : Piece
         if (IsOccupied && board.PieceColorOnSqaure(targetSquare) != this.Color)
         {
             moves.Add(targetSquare);
+        }
+    }
+
+    private void CheckForEnPassant(ICollection<string> moves, Board board, ChessFile file, int rank)
+    {
+        var nextToPawn = $"{file}{rank - 1}";
+        var IsOccupied = board.IsSquareOccupied(nextToPawn);
+
+        if (!IsOccupied)
+        {
+            return;
+        }
+
+        if (board.PieceColorOnSqaure(nextToPawn) == this.Color)
+        {
+            return;
+        }
+
+        var pieceNextToPawn = board.Squares[nextToPawn].Piece;
+        if (pieceNextToPawn?.NumberOfMoves == 0 && pieceNextToPawn is Pawn)
+        {
+            moves.Add($"{file}{rank}");
         }
     }
 }

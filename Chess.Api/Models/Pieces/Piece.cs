@@ -4,6 +4,7 @@ namespace Chess.Api.Models.Pieces;
 
 public abstract class Piece
 {
+    public int NumberOfMoves { get; set; }
     public string Identifier { get; init; } = string.Empty;
     public ChessColor Color { get; init; } = ChessColor.White;
     public List<string> AvailableMoves { get; set; } = new List<string>();
@@ -33,6 +34,7 @@ public abstract class Piece
         CurrentRank = (int)square[1];
 
         AvailableMoves = RecalculateAvailableMoves(board);
+        NumberOfMoves++;
     }
 
     public abstract List<string> RecalculateAvailableMoves(Board board);

@@ -5,6 +5,7 @@ namespace Chess.Api.Models.Pieces;
 
 public class Pawn : Piece
 {
+    // TODO: Fix class to account for moving black pieces
     public override List<string> RecalculateAvailableMoves(Board board)
     {
         var moves = new List<string>();

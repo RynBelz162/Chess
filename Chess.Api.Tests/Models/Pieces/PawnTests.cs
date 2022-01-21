@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using Chess.Api.Constants;
 using Chess.Api.Models.Pieces;
-using FluentAssertions;
-using Xunit;
 
 namespace Chess.Api.Tests.Models.Pieces;
 

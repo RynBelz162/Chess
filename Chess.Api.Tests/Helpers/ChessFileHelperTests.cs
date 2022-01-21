@@ -19,4 +19,17 @@ public class ChessFileHelperTests
         leftFile.Should().Be(expectedLeft);
         rightFile.Should().Be(expectedRight);
     }
+
+    [Fact]
+    public void GetOrderedFiles_ReturnsOrderedFiles()
+    {
+        var files = ChessFileHelper.OrderedFiles;
+        var expected = new List<char>
+        {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'
+        };
+
+        files.Should().BeInAscendingOrder();
+        files.Should().BeEquivalentTo(expected);
+    }
 }

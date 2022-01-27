@@ -43,7 +43,7 @@ public class ChessBoardBuilder
         // White
         'K' => new King { Color = ChessColor.White, NumberOfMoves = numOfMoves },
         'Q' => new Queen { Color = ChessColor.White, NumberOfMoves = numOfMoves },
-        'E' => new Rook { Color = ChessColor.White, NumberOfMoves = numOfMoves },
+        'R' => new Rook { Color = ChessColor.White, NumberOfMoves = numOfMoves },
         'N' => new Knight { Color = ChessColor.White, NumberOfMoves = numOfMoves },
         'B' => new Bishop { Color = ChessColor.White, NumberOfMoves = numOfMoves },
         'P' => new Pawn { Color = ChessColor.White, NumberOfMoves = numOfMoves },

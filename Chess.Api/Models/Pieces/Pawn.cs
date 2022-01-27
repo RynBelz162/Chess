@@ -5,24 +5,46 @@ namespace Chess.Api.Models.Pieces;
 
 public class Pawn : Piece
 {
-    // TODO: Fix class to account for moving black pieces
+    private int NextRankForColor => Color == ChessColor.White ? CurrentRank + 1 : CurrentRank - 1;
+
     public override List<string> RecalculateAvailableMoves(Board board)
     {
         var moves = new List<string>();
 
-        var nextRank = this.CurrentRank + 1;
-        var squareAbove = $"{this.CurrentFile}{nextRank}";
-        if(!board.IsSquareOccupied(squareAbove))
+        if (ShouldPromote())
         {
-            moves.Add(squareAbove);
+            // TODO: Implement pawn promotion.
+            return moves;
         }
 
-        var (leftFile, rightFile) = ChessFileHelper.GetLeftAndRightFile(this.CurrentFile);
-        
-        AddDiagonalMove(moves, board, leftFile, nextRank);
-        AddDiagonalMove(moves, board, rightFile, nextRank);
+        AddForwardMoves(moves, board);
+
+        var (leftFile, rightFile) = ChessFileHelper.GetLeftAndRightFile(CurrentFile);
+        AddDiagonalMove(moves, board, leftFile, NextRankForColor);
+        AddDiagonalMove(moves, board, rightFile, NextRankForColor);
 
         return moves;
+    }
+
+    private void AddForwardMoves(ICollection<string> moves, Board board)
+    {
+        var targetSquare = $"{CurrentFile}{NextRankForColor}";
+        if(!board.IsSquareOccupied(targetSquare))
+        {
+            moves.Add(targetSquare);
+        }
+
+        if (NumberOfMoves > 0 && (NextRankForColor != 1 || NextRankForColor != 8))
+        {
+            return;
+        }
+
+        var targetRank = Color == ChessColor.White ? NextRankForColor + 1 : NextRankForColor - 1;
+        var targetSecondSqaure = $"{CurrentFile}{targetRank}";
+        if(!board.IsSquareOccupied(targetSquare))
+        {
+            moves.Add(targetSecondSqaure);
+        }
     }
 
     private void AddDiagonalMove(ICollection<string> moves, Board board, ChessFile? file, int rank)
@@ -51,7 +73,7 @@ public class Pawn : Piece
 
     private void CheckForEnPassant(ICollection<string> moves, Board board, ChessFile file, int rank)
     {
-        var nextToPawn = $"{file}{rank - 1}";
+        var nextToPawn = $"{file}{CurrentRank}";
         var IsOccupied = board.IsSquareOccupied(nextToPawn);
 
         if (!IsOccupied)
@@ -69,5 +91,20 @@ public class Pawn : Piece
         {
             moves.Add($"{file}{rank}");
         }
+    }
+
+    private bool ShouldPromote()
+    {
+        if (Color == ChessColor.White && CurrentRank == 7)
+        {
+            return true;
+        }
+
+        if (Color == ChessColor.Black && CurrentRank == 2)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

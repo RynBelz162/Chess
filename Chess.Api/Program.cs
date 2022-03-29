@@ -1,61 +1,63 @@
 ﻿using Orleans.Hosting;
 using Orleans;
-using Microsoft.AspNetCore.ResponseCompression;
-using Chess.Api.Hubs;
 using Chess.Api.Services;
+using Orleans.Configuration;
+using Chess.Api.Hubs;
 
 await Host.CreateDefaultBuilder(args)
+    .UseOrleans((ctx, siloBuilder) =>
+    {
+        var redisConnectionString = ctx.Configuration.GetConnectionString("Redis");
+        Console.WriteLine($"---> using redis connection string: {redisConnectionString}");
+
+        siloBuilder
+            .Configure<ClusterOptions>(options =>
+            {
+                options.ClusterId = "chess-silo";
+                options.ServiceId = "ChessApi";
+            })
+            .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
+            .UseRedisClustering(redisConnectionString)
+            .AddRedisGrainStorage("chess", options => options.Configure(opt =>{
+                opt.ConnectionString = redisConnectionString;
+                opt.UseJson = true;
+                opt.DatabaseNumber = 1;
+            }));
+
+        siloBuilder.UseSignalR(opt =>
+        {
+            opt.UseFireAndForgetDelivery = true;
+            opt.Configure((builder, constants) => 
+            {
+                builder
+                    .AddMemoryGrainStorage(constants.PubSubProvider)
+                    .AddMemoryGrainStorage(constants.StorageProvider);
+            });
+        })
+        .RegisterHub<GameHub>();
+    })
     .ConfigureWebHostDefaults(webBuilder =>
     {
         webBuilder.ConfigureServices(services => 
         { 
-            services.AddResponseCompression(opts =>
-            {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
-            });
-
             services.AddControllers(); 
-            services.AddSignalR()
-                .AddOrleans();
+            services.AddSignalR();
         });
 
         webBuilder.Configure((ctx, app) =>
         {
-            app.UseResponseCompression();
-
             if (ctx.HostingEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
             app.UseRouting();
-            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<GameHub>("/game");
             });
         });
-    })
-    .UseOrleans((ctx, siloBuilder) =>
-    {
-        siloBuilder.UseLocalhostClustering();
-        siloBuilder.AddMemoryGrainStorage("chess");
-
-        siloBuilder.UseSignalR(config =>
-        {
-            config.UseFireAndForgetDelivery = true;
-
-            config.Configure((siloBuilder, signalRConstants) =>
-            {
-                siloBuilder.AddMemoryGrainStorage(signalRConstants.StorageProvider);
-                siloBuilder.AddMemoryGrainStorage(signalRConstants.PubSubProvider /*Same as "PubSubStore"*/);
-            });
-        })
-        .RegisterHub<GameHub>();
     })
     .ConfigureServices(collection =>
     {

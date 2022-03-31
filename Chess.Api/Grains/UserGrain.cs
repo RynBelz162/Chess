@@ -1,10 +1,12 @@
 using Chess.Api.Constants;
 using Chess.Api.Models;
 using Orleans;
+using Orleans.Providers;
 using Orleans.Runtime;
 
 namespace Chess.Api.Grains;
 
+[StorageProvider(ProviderName = "chess")]
 public class UserGrain : Grain, IUserGrain
 {
     private readonly IPersistentState<UserState> _playerState;

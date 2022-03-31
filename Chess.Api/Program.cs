@@ -17,6 +17,7 @@ await Host.CreateDefaultBuilder(args)
                 options.ServiceId = "ChessApi";
             })
             .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
+            .ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory())
             .UseRedisClustering(redisConnectionString)
             .AddRedisGrainStorage("chess", options => options.Configure(opt =>{
                 opt.ConnectionString = redisConnectionString;
@@ -63,4 +64,5 @@ await Host.CreateDefaultBuilder(args)
     {
         collection.AddTransient<ISetupService, SetupService>();
     })
+    .ConfigureLogging(builder => builder.SetMinimumLevel(LogLevel.Warning).AddConsole())
     .RunConsoleAsync();

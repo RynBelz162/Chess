@@ -1,6 +1,7 @@
 using Chess.Api.Grains;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
+using System.Text.Json;
 
 namespace Chess.Api.Hubs;
 
@@ -33,6 +34,13 @@ public class GameHub : Hub
             .SendAsync("PlayerJoined", playerId);
 
         await AddToGroup(playerId, gameId);
+    }
+
+    public async Task GameState(Guid gameId)
+    {
+        var state = await _grainFactory.GetGrain<IGrameGrain>(gameId).GetState();
+
+        Console.WriteLine(JsonSerializer.Serialize(state));
     }
 
     private async Task AddToGroup(Guid playerId, Guid gameId) =>

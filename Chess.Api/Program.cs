@@ -14,12 +14,13 @@ await Host.CreateDefaultBuilder(args)
             .Configure<ClusterOptions>(options =>
             {
                 options.ClusterId = "chess-silo";
-                options.ServiceId = "ChessApi";
+                options.ServiceId = "chess-api";
             })
             .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
             .ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory())
             .UseRedisClustering(redisConnectionString)
-            .AddRedisGrainStorage("chess", options => options.Configure(opt =>{
+            .AddRedisGrainStorage("chess", options => options.Configure(opt =>
+            {
                 opt.ConnectionString = redisConnectionString;
                 opt.UseJson = true;
                 opt.DatabaseNumber = 1;

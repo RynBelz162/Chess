@@ -26,18 +26,18 @@ public class SetupService : ISetupService
     };
     
 
-    private Dictionary<char, Piece> InitializePieces()
+    private Dictionary<string, Piece> InitializePieces()
     {
-        var result = new Dictionary<char, Piece>();
+        var result = new Dictionary<string, Piece>();
         AddWhite(result);
         AddBlack(result);
         return result;
     }
 
-    private void AddWhite(Dictionary<char, Piece> pieceDict)
+    private void AddWhite(Dictionary<string, Piece> pieceDict)
     {
-        pieceDict.Add('Q', new Queen());
-        pieceDict.Add('K', new King());
+        pieceDict.Add("Q", new Queen());
+        pieceDict.Add("K", new King());
 
         CreatePieces<Rook>(pieceDict, 'R', 2);
         CreatePieces<Knight>(pieceDict, 'N', 2);
@@ -45,10 +45,10 @@ public class SetupService : ISetupService
         CreatePieces<Pawn>(pieceDict, 'P', 8);
     }
 
-    private void AddBlack(Dictionary<char, Piece> pieceDict)
+    private void AddBlack(Dictionary<string, Piece> pieceDict)
     {
-        pieceDict.Add('q', new Queen());
-        pieceDict.Add('k', new King());
+        pieceDict.Add("q", new Queen());
+        pieceDict.Add("k", new King());
 
         CreatePieces<Rook>(pieceDict, 'r', 2);
         CreatePieces<Knight>(pieceDict, 'n', 2);
@@ -56,12 +56,12 @@ public class SetupService : ISetupService
         CreatePieces<Pawn>(pieceDict, 'p', 8);
     }
 
-    private void CreatePieces<T>(Dictionary<char, Piece> pieceDict, char identifier, int numberToCreate) where T : Piece
+    private void CreatePieces<T>(Dictionary<string, Piece> pieceDict, char identifier, int numberToCreate) where T : Piece
     {
         for (int i = 0; i < numberToCreate; i++)
         {
             var piece = Activator.CreateInstance<T>();
-            pieceDict.Add(identifier, piece);
+            pieceDict.Add($"{identifier}{i+1}", piece);
         }
     }
 }

@@ -9,31 +9,25 @@ namespace Chess.Api.Grains;
 [StorageProvider(ProviderName = "chess")]
 public class GameGrain : Grain, IGrameGrain
 {
-    private readonly IPersistentState<GameState?> _gameState;
+    private readonly IPersistentState<GameState> _gameState;
     private readonly IGrainFactory _grainFactory;
     private readonly ISetupService _setupService;
 
     public GameGrain(
-        [PersistentState(stateName: "game", storageName: "chess")] IPersistentState<GameState?> games,
+        [PersistentState("game", "chess")] IPersistentState<GameState> gameState,
         IGrainFactory grainFactory,
         ISetupService setupService)
     {
-        _gameState = games;
+        _gameState = gameState;
         _grainFactory = grainFactory;
         _setupService = setupService;
     }
 
-    public Task Create(Guid userId) 
+    public async Task Create(Guid userId) 
     {
-        var gameId = this.GetPrimaryKey();
-        if (_gameState.State != null)
-        {
-            throw new ApplicationException($"Game with id: {gameId} has already been created");
-        }
-
         _gameState.State = new GameState
         {
-            GameId = gameId,
+            GameId = this.GetPrimaryKey(),
             Board = _setupService.InitializeBoard(),
             PlayerOne = new Player
             {
@@ -44,10 +38,10 @@ public class GameGrain : Grain, IGrameGrain
             CreatedOn = DateTime.UtcNow
         };
 
-        return Task.CompletedTask;
+        await _gameState.WriteStateAsync();
     }
 
-    public Task Join(Guid userId)
+    public async Task Join(Guid userId)
     {
         if ( _gameState.State is null || _gameState.State.PlayerOne is null || _gameState.State.PlayerTwo != null)
         {
@@ -61,6 +55,12 @@ public class GameGrain : Grain, IGrameGrain
             IsCurrentTurn = false,
         };
 
-        return Task.CompletedTask;
+        await _gameState.WriteStateAsync();
+    }
+
+    public async Task<GameState> GetState()
+    {
+        await _gameState.ReadStateAsync();
+        return _gameState.State;
     }
 }

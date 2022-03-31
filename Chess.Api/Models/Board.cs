@@ -12,7 +12,7 @@ public class Board
     public string CurrentFen { get; set; } = StartingFen;
     
     public Dictionary<string, Square> Squares { get; set; } = new Dictionary<string, Square>();
-    public Dictionary<char, Piece> Pieces { get; set; } = new Dictionary<char, Piece>();
+    public Dictionary<string, Piece> Pieces { get; set; } = new Dictionary<string, Piece>();
 
     public bool IsSquareOccupied(string targetSquare) =>
         Squares[targetSquare].IsOccupied;

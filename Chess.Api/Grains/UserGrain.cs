@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Chess.Api.Constants;
 using Chess.Api.Models;
 using Orleans;
@@ -20,17 +21,14 @@ public class UserGrain : Grain, IUserGrain
         _grainFactory = grainFactory;
     }
 
-    public override Task OnActivateAsync()
+    public async Task Create()
     {
-        if (_playerState.State.UserId == default)
-        {
-            _playerState.State.UserId = this.GetPrimaryKey();
-        }
-
-        return Task.CompletedTask;
+        _playerState.State = new UserState();
+        _playerState.State.UserId = this.GetPrimaryKey();
+        await _playerState.WriteStateAsync();
     }
 
-    public Task<Guid> CreateGame()
+    public async Task<Guid> CreateGame()
     {
         if (_playerState.State.CurrentGameId.HasValue)
         {
@@ -39,21 +37,23 @@ public class UserGrain : Grain, IUserGrain
 
         var newGameGuid = Guid.NewGuid();
 
-        var gameId = _grainFactory
+        await _grainFactory
             .GetGrain<IGrameGrain>(newGameGuid)
             .Create(_playerState.State.UserId);
 
         _playerState.State.CurrentGameId = newGameGuid;
-        return Task.FromResult(newGameGuid);
+        await _playerState.WriteStateAsync();
+
+        return newGameGuid;
     }
     
-    public Task JoinGame(Guid gameId)
+    public async Task JoinGame(Guid gameId)
     {
-        _grainFactory
+        await _grainFactory
             .GetGrain<IGrameGrain>(gameId)
             .Join(this.GetPrimaryKey());
         
         _playerState.State.CurrentGameId = gameId;
-        return Task.CompletedTask;
+        await _playerState.WriteStateAsync();
     }
 }

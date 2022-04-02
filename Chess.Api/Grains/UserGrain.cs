@@ -1,6 +1,4 @@
-using System.Text.Json;
-using Chess.Api.Constants;
-using Chess.Api.Models;
+using Chess.Shared.Models.State;
 using Orleans;
 using Orleans.Providers;
 using Orleans.Runtime;

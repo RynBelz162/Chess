@@ -36,13 +36,6 @@ public class GameHub : Hub
         await AddToGroup(playerId, gameId);
     }
 
-    public async Task GameState(Guid gameId)
-    {
-        var state = await _grainFactory.GetGrain<IGrameGrain>(gameId).GetState();
-
-        Console.WriteLine(JsonSerializer.Serialize(state));
-    }
-
     private async Task AddToGroup(Guid playerId, Guid gameId) =>
         await Groups.AddToGroupAsync(playerId.ToString(), gameId.ToString());
 }

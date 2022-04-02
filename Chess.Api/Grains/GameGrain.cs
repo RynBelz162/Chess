@@ -1,8 +1,9 @@
-using Chess.Api.Models;
+using Chess.Shared.Models;
 using Chess.Api.Services;
 using Orleans;
 using Orleans.Providers;
 using Orleans.Runtime;
+using Chess.Shared.Models.State;
 
 namespace Chess.Api.Grains;
 
@@ -56,11 +57,5 @@ public class GameGrain : Grain, IGrameGrain
         };
 
         await _gameState.WriteStateAsync();
-    }
-
-    public async Task<GameState> GetState()
-    {
-        await _gameState.ReadStateAsync();
-        return _gameState.State;
     }
 }

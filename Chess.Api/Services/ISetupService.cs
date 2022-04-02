@@ -1,5 +1,5 @@
-using Chess.Api.Constants;
-using Chess.Api.Models;
+using Chess.Shared.Constants;
+using Chess.Shared.Models;
 
 namespace Chess.Api.Services;
 

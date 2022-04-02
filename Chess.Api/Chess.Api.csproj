@@ -17,4 +17,8 @@
     <PackageReference Include="Orleans.Persistence.Redis" Version="3.2.1" />
     <PackageReference Include="Signalr.Orleans" Version="2.1.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chess.Shared\Chess.Shared.csproj" />
+  </ItemGroup>
 </Project>

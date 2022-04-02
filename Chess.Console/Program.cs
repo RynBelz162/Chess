@@ -24,11 +24,7 @@ var playerId = JsonSerializer.Deserialize<Guid>(playerIdRaw);
 
 Console.WriteLine(playerId);
 
-connection.On<string>("GameCreated", async (gameId) =>
-{
-    Console.WriteLine($"Game created: {gameId}");
-    await connection.InvokeAsync("GameState", gameId);
-});
+connection.On<string>("GameCreated", (gameId) => Console.WriteLine($"Game created: {gameId}"));
 
 await connection.InvokeAsync("Create", playerId);
 

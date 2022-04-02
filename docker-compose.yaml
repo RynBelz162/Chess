@@ -3,7 +3,7 @@ services:
   api:
     container_name: api
     build:
-      context: ./Chess.Api
+      context: .
     ports:
       - "5062:80"
     depends_on:

@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api", "Chess.Api\Chess.Api.csproj", "{22A53792-3F7C-4D64-B488-EDB13C076BBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api.Tests", "Chess.Api.Tests\Chess.Api.Tests.csproj", "{C89A48BC-3BFE-4726-88D0-B433DA4D5238}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Shared.Tests", "Chess.Shared.Tests\Chess.Shared.Tests.csproj", "{C89A48BC-3BFE-4726-88D0-B433DA4D5238}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Console", "Chess.Console\Chess.Console.csproj", "{038A267E-D7B7-4EAA-ADBE-6E4A341F2170}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Shared", "Chess.Shared\Chess.Shared.csproj", "{8B229613-5297-4615-86A2-6F6ABC16495D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +32,10 @@ Global
 		{038A267E-D7B7-4EAA-ADBE-6E4A341F2170}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{038A267E-D7B7-4EAA-ADBE-6E4A341F2170}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{038A267E-D7B7-4EAA-ADBE-6E4A341F2170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B229613-5297-4615-86A2-6F6ABC16495D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B229613-5297-4615-86A2-6F6ABC16495D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B229613-5297-4615-86A2-6F6ABC16495D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B229613-5297-4615-86A2-6F6ABC16495D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

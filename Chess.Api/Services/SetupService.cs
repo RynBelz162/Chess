@@ -1,7 +1,6 @@
 using Chess.Shared.Constants;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;
-using ChessFile = Chess.Shared.Constants.ChessFile;
 
 namespace Chess.Api.Services;
 

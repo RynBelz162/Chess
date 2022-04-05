@@ -3,8 +3,10 @@ using Orleans;
 using Chess.Api.Services;
 using Orleans.Configuration;
 using Chess.Api.Hubs;
+using Serilog;
 
 await Host.CreateDefaultBuilder(args)
+    .UseSerilog((ctx, lc) => lc.MinimumLevel.Warning().WriteTo.Console())
     .UseOrleans((ctx, siloBuilder) =>
     {
         var redisConnectionString = ctx.Configuration.GetConnectionString("Redis");
@@ -65,5 +67,4 @@ await Host.CreateDefaultBuilder(args)
     {
         collection.AddTransient<ISetupService, SetupService>();
     })
-    .ConfigureLogging(builder => builder.SetMinimumLevel(LogLevel.Warning).AddConsole())
     .RunConsoleAsync();

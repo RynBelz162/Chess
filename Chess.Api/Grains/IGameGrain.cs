@@ -1,4 +1,3 @@
-using Chess.Shared.Models;
 using Orleans;
 
 namespace Chess.Api.Grains;

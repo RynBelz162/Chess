@@ -1,7 +1,6 @@
 using Chess.Api.Grains;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
-using System.Text.Json;
 
 namespace Chess.Api.Hubs;
 
@@ -21,7 +20,7 @@ public class GameHub : Hub
             .CreateGame();
 
         await Clients.Caller.SendAsync("GameCreated", gameId);
-        await AddToGroup(playerId, gameId);
+        await AddToGroup(gameId);
     }
 
     public async Task Join(Guid gameId, Guid playerId)
@@ -30,12 +29,10 @@ public class GameHub : Hub
             .GetGrain<IUserGrain>(playerId)
             .JoinGame(gameId);
 
-        await Clients.Group(gameId.ToString())
-            .SendAsync("PlayerJoined", playerId);
-
-        await AddToGroup(playerId, gameId);
+        await AddToGroup(gameId);
+        await Clients.Group(gameId.ToString()).SendAsync("PlayerJoined", playerId);
     }
 
-    private async Task AddToGroup(Guid playerId, Guid gameId) =>
-        await Groups.AddToGroupAsync(playerId.ToString(), gameId.ToString());
+    private async Task AddToGroup(Guid gameId) =>
+        await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
 }

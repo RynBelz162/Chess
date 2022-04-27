@@ -1,15 +1,16 @@
 using Chess.Shared.Constants;
+using Chess.Shared.Helpers;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;
 
-namespace Chess.Shared.Helpers;
+namespace Chess.Shared.Extensions;
 
-public static class BoardMovementHelper
+public static class PieceExtensions
 {
     private static int MaxRank = 8;
     private static int MinRank = 1;
 
-    public static void Forward(Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
+    public static void Forward(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
         for (int i = piece.CurrentRank + 1; i <= MaxRank; i++)
         {
@@ -20,7 +21,7 @@ public static class BoardMovementHelper
         }
     }
 
-    public static void Backward(Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
+    public static void Backward(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
         for (int i = piece.CurrentRank - 1; i >= MinRank; i--)
         {
@@ -31,7 +32,7 @@ public static class BoardMovementHelper
         }
     }
 
-    public static void Left(Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
+    public static void Left(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
         var allFiles = ChessFileHelper.OrderedFiles;
         var index = Array.IndexOf(allFiles, ((char)piece.CurrentFile));
@@ -45,7 +46,7 @@ public static class BoardMovementHelper
         }
     }
 
-    public static void Right(Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
+    public static void Right(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
         var allFiles = ChessFileHelper.OrderedFiles;
         var index = Array.IndexOf(allFiles, ((char)piece.CurrentFile));
@@ -59,59 +60,67 @@ public static class BoardMovementHelper
         }
     }
 
-    public static void DiagonalTopLeft(ChessFile file, int rank, Func<ChessFile, int, MovementResult> check)
+    public static void DiagonalTopLeft(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
-        ChessFile currentFile = file;
-        for (int i = rank; i < MaxRank; i++)
+        var file = piece.CurrentFile;
+        for (int i = (piece.CurrentRank + 1); i <= 8; i++)
         {
             var (left, _) = ChessFileHelper.GetLeftAndRightFile(file);
             if (left is null) break;
 
-            currentFile = left.Value;
-            var result = check.Invoke(currentFile, i);
+            file = left.Value;
+            var result = check.Invoke(file, i);
+            action?.Invoke(result);
+
             if (result.StopMoving) break;
         }
     }
 
-    public static void DiagonalTopRight(ChessFile file, int rank, Func<ChessFile, int, MovementResult> check)
+    public static void DiagonalTopRight(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
-        ChessFile currentFile = file;
-        for (int i = rank; i < MaxRank; i++)
+        var file = piece.CurrentFile;
+        for (int i = (piece.CurrentRank + 1); i <= 8; i++)
         {
             var (_, right) = ChessFileHelper.GetLeftAndRightFile(file);
             if (right is null) break;
 
-            currentFile = right.Value;
-            var result = check.Invoke(currentFile, i);
+            file = right.Value;
+            var result = check.Invoke(file, i);
+            action?.Invoke(result);
+
             if (result.StopMoving) break;
         }
     }
 
-    public static void DiagonalBottomLeft(ChessFile file, int rank, Func<ChessFile, int, MovementResult> check)
+    public static void DiagonalBottomLeft(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
-        ChessFile currentFile = file;
-        for (int i = rank; i > MinRank; i--)
+        var file = piece.CurrentFile;
+        for (int i = (piece.CurrentRank - 1); i >= 1; i--)
         {
             var (left, _) = ChessFileHelper.GetLeftAndRightFile(file);
             if (left is null) break;
 
-            currentFile = left.Value;
-            var result = check.Invoke(currentFile, i);
+            file = left.Value;
+            var result = check.Invoke(file, i);
+            action?.Invoke(result);
+
             if (result.StopMoving) break;
         }
     }
 
 
-    public static void DiagonalBottomRight(ChessFile file, int rank, Func<ChessFile, int, MovementResult> check)
+    public static void DiagonalBottomRight(this Piece piece, Func<ChessFile, int, MovementResult> check, Action<MovementResult>? action = null)
     {
-        ChessFile currentFile = file;
-        for (int i = rank; i > MinRank; i--)
+        var file = piece.CurrentFile;
+        for (int i = (piece.CurrentRank - 1); i >= 1; i--)
         {
             var (_, right) = ChessFileHelper.GetLeftAndRightFile(file);
             if (right is null) break;
 
-            currentFile = right.Value;
-            var result = check.Invoke(currentFile, i);
+            file = right.Value;
+            var result = check.Invoke(file, i);
+            action?.Invoke(result);
+            
             if (result.StopMoving) break;
         }
     }

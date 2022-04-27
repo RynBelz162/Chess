@@ -1,5 +1,5 @@
 using Chess.Shared.Constants;
-using Chess.Shared.Helpers;
+using Chess.Shared.Extensions;
 
 namespace Chess.Shared.Models.Pieces;
 
@@ -32,10 +32,11 @@ public class Rook : Piece
             moves.Add($"{result.TargetFile}{result.TargetRank}");
         };
 
-        BoardMovementHelper.Forward(this,  canMoveToSquare, addToMoves);
-        BoardMovementHelper.Backward(this, canMoveToSquare, addToMoves);
-        BoardMovementHelper.Left(this, canMoveToSquare, addToMoves);
-        BoardMovementHelper.Right(this, canMoveToSquare, addToMoves);
+        this.Forward(canMoveToSquare, addToMoves);
+        this.Backward(canMoveToSquare, addToMoves);
+        this.Left(canMoveToSquare, addToMoves);
+        this.Right(canMoveToSquare, addToMoves);
+
         return moves;
     }
 }

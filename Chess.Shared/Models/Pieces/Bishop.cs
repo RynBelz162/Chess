@@ -1,6 +1,5 @@
 using Chess.Shared.Constants;
 using Chess.Shared.Extensions;
-using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
 

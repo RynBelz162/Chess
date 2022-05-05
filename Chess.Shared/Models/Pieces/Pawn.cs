@@ -86,7 +86,7 @@ public class Pawn : Piece
             return;
         }
 
-        var pieceNextToPawn = board.Squares[nextToPawn].Piece;
+        var pieceNextToPawn = board.PieceOnSqaure(nextToPawn);
         if (pieceNextToPawn?.NumberOfMoves == 0 && pieceNextToPawn is Pawn)
         {
             moves.Add($"{file}{rank}");

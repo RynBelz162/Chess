@@ -20,6 +20,9 @@ public class Board
     public ChessColor? PieceColorOnSqaure(string targetSquare) =>
         Squares[targetSquare].Piece?.Color;
 
+    public Piece? PieceOnSqaure(string targetSqaure) =>
+        Squares[targetSqaure].Piece;
+
     public Board()
     {
         foreach (char file in Enum.GetValues<ChessFile>())

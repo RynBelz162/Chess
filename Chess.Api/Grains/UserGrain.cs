@@ -54,4 +54,19 @@ public class UserGrain : Grain, IUserGrain
         _playerState.State.CurrentGameId = gameId;
         await _playerState.WriteStateAsync();
     }
+
+    public async Task<Guid> Move(string move)
+    {
+        var currentGameId = _playerState.State.CurrentGameId;
+        if  (currentGameId is null)
+        {
+            throw new ApplicationException("Player is not currently in a game.");
+        }
+
+        await _grainFactory
+            .GetGrain<GameGrain>(currentGameId.Value)
+            .Move(move, this.GetPrimaryKey());
+
+        return currentGameId.Value;
+    }
 }

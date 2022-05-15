@@ -1,5 +1,6 @@
 using Chess.Shared.Constants;
 using Chess.Shared.Extensions;
+using Chess.Shared.Models.Movement;
 
 namespace Chess.Shared.Models.Pieces;
 

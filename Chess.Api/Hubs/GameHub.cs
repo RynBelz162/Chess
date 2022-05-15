@@ -33,6 +33,15 @@ public class GameHub : Hub
         await Clients.Group(gameId.ToString()).SendAsync("PlayerJoined", playerId);
     }
 
+    public async Task MovePiece(string move, Guid playerId)
+    {
+        var gameId = await _grainFactory
+            .GetGrain<IUserGrain>(playerId)
+            .Move(move);
+
+        await Clients.Group(gameId.ToString()).SendAsync("Moved");
+    }
+
     private async Task AddToGroup(Guid gameId) =>
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
 }

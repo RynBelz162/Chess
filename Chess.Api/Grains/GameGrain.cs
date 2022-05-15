@@ -13,15 +13,18 @@ public class GameGrain : Grain, IGrameGrain
     private readonly IPersistentState<GameState> _gameState;
     private readonly IGrainFactory _grainFactory;
     private readonly ISetupService _setupService;
+    private readonly IAlgebraicNotationService _algebraicNotationService;
 
     public GameGrain(
         [PersistentState("game", "chess")] IPersistentState<GameState> gameState,
         IGrainFactory grainFactory,
-        ISetupService setupService)
+        ISetupService setupService,
+        IAlgebraicNotationService algebraicNotationService)
     {
         _gameState = gameState;
         _grainFactory = grainFactory;
         _setupService = setupService;
+        _algebraicNotationService = algebraicNotationService;
     }
 
     public async Task Create(Guid userId) 
@@ -58,4 +61,40 @@ public class GameGrain : Grain, IGrameGrain
 
         await _gameState.WriteStateAsync();
     }
+
+    public Task Move(string move, Guid userId)
+    {
+        var player = GetPlayer(userId);
+        if (!player.IsCurrentTurn)
+        {
+            throw new ApplicationException("Not your turn yet!");
+        }
+
+        var request = _algebraicNotationService.GetRequest(move);
+        var piece = _gameState.State.Board.PieceOnSqaure(request.PieceSquare);
+        if (piece is null)
+        {
+            throw new ApplicationException("Piece not available to move");
+        }
+
+        piece.Move(request.TargetSquare, _gameState.State.Board);
+        return Task.CompletedTask;
+    }
+
+    private Player GetPlayer(Guid userId)
+    {
+        if (!DoesGameHaveBothPlayers())
+        {
+            throw new ApplicationException("Both players are not ready to start.");
+        }
+
+        if (_gameState.State.PlayerOne.UserId == userId)
+        {
+            return _gameState.State.PlayerOne;
+        }
+
+        return _gameState.State.PlayerTwo!;
+    }
+
+    private bool DoesGameHaveBothPlayers() => _gameState.State.PlayerTwo != null;
 }

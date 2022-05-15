@@ -1,6 +1,6 @@
 using Chess.Shared.Constants;
 
-namespace Chess.Shared.Models;
+namespace Chess.Shared.Models.Movement;
 
 public class MovementResult
 {

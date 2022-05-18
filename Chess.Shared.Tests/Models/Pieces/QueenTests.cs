@@ -1,5 +1,6 @@
 using System.Linq;
 using Chess.Shared.Constants;
+using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
 
 namespace Chess.Shared.Tests.Models.Pieces;

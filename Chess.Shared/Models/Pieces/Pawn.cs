@@ -5,6 +5,8 @@ namespace Chess.Shared.Models.Pieces;
 
 public class Pawn : Piece
 {
+    public override char Identifier => Color == ChessColor.White ? 'p' : 'P';
+
     private int NextRankForColor => Color == ChessColor.White ? CurrentRank + 1 : CurrentRank - 1;
 
     public override List<string> RecalculateAvailableMoves(Board board)

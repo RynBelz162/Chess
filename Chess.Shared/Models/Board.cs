@@ -12,16 +12,7 @@ public class Board
     public string CurrentFen { get; set; } = StartingFen;
     
     public Dictionary<string, Square> Squares { get; set; } = new Dictionary<string, Square>();
-    public Dictionary<string, Piece> Pieces { get; set; } = new Dictionary<string, Piece>();
-
-    public bool IsSquareOccupied(string targetSquare) =>
-        Squares[targetSquare].IsOccupied;
-
-    public ChessColor? PieceColorOnSqaure(string targetSquare) =>
-        Squares[targetSquare].Piece?.Color;
-
-    public Piece? PieceOnSqaure(string targetSqaure) =>
-        Squares[targetSqaure].Piece;
+    public HashSet<Piece> Pieces { get; set; } = new HashSet<Piece>();
 
     public Board()
     {
@@ -33,4 +24,19 @@ public class Board
             }
         }
     }
+
+    public bool IsSquareOccupied(string targetSquare) =>
+        Squares[targetSquare].IsOccupied;
+
+    public ChessColor? PieceColorOnSqaure(string targetSquare) =>
+        Squares[targetSquare].Piece?.Color;
+
+    public Piece? PieceOnSqaure(string targetSqaure) =>
+        Squares[targetSqaure].Piece;
+
+    public List<Piece> PieceWithAvailableMove<T>(string targetMove) where T : Piece =>
+        Pieces
+            .Where(x => x.GetType() == typeof(T))
+            .Where(x => x.AvailableMoves.Any(move => move.Equals(targetMove, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
 }

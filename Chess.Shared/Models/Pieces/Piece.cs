@@ -4,12 +4,14 @@ namespace Chess.Shared.Models.Pieces;
 
 public abstract class Piece
 {
+    public abstract char Identifier { get; }
+
     public int NumberOfMoves { get; set; }
-    public string Identifier { get; init; } = string.Empty;
     public ChessColor Color { get; init; } = ChessColor.White;
     public List<string> AvailableMoves { get; set; } = new List<string>();
     public ChessFile CurrentFile { get; set; }
     public int CurrentRank { get; set; }
+    public string CurrentSqaure => $"{CurrentFile}{CurrentRank}";
     public bool IsCaptured { get; set; }
 
     public bool CanMove() => AvailableMoves.Any();

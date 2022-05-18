@@ -2,20 +2,29 @@ using Chess.Shared.Constants;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;
 
-namespace Chess.Shared.Tests;
+namespace Chess.Shared.Helpers;
 
 public class ChessBoardBuilder
 {
     private Board _board = new Board();
 
-    public Board Build() => _board;
+    public Board Build()
+    {
+        Parallel.ForEach(_board.Pieces, piece =>
+        {
+            piece.AvailableMoves = piece.RecalculateAvailableMoves(_board);
+        });
+
+        return _board;
+    }
 
     public ChessBoardBuilder PlacePieceAt(Piece piece, ChessFile file, int rank)
     {
         piece.CurrentFile = file;
         piece.CurrentRank = rank;
         var targetSquare = $"{file}{rank}";
-        
+
+        _board.Pieces.Add(piece);
         _board.Squares[targetSquare].Piece = piece;
         return this;
     }
@@ -27,6 +36,7 @@ public class ChessBoardBuilder
         piece.CurrentRank = rank;
         var targetSquare = $"{file}{rank}";
 
+        _board.Pieces.Add(piece);
         _board.Squares[targetSquare].Piece = piece;
         return this;
     }

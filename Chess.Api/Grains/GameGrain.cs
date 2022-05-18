@@ -70,7 +70,7 @@ public class GameGrain : Grain, IGrameGrain
             throw new ApplicationException("Not your turn yet!");
         }
 
-        var request = _algebraicNotationService.GetRequest(move);
+        var request = _algebraicNotationService.GetRequest(move, _gameState.State.Board);
         var piece = _gameState.State.Board.PieceOnSqaure(request.PieceSquare);
         if (piece is null)
         {

@@ -5,7 +5,7 @@ namespace Chess.Shared.Models.Pieces;
 
 public class Pawn : Piece
 {
-    public override char Identifier => Color == ChessColor.White ? 'p' : 'P';
+    public const char Identifier = 'P';
 
     private int NextRankForColor => Color == ChessColor.White ? CurrentRank + 1 : CurrentRank - 1;
 

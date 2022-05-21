@@ -6,7 +6,7 @@ namespace Chess.Shared.Models.Pieces;
 
 public class Bishop : Piece
 {
-    public override char Identifier => Color == ChessColor.White ? 'b' : 'B';
+    public const char Identifier = 'B';
 
     public override List<string> RecalculateAvailableMoves(Board board)
     {

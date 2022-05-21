@@ -4,8 +4,6 @@ namespace Chess.Shared.Models.Pieces;
 
 public abstract class Piece
 {
-    public abstract char Identifier { get; }
-
     public int NumberOfMoves { get; set; }
     public ChessColor Color { get; init; } = ChessColor.White;
     public List<string> AvailableMoves { get; set; } = new List<string>();

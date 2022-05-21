@@ -34,9 +34,9 @@ public class Board
     public Piece? PieceOnSqaure(string targetSqaure) =>
         Squares[targetSqaure].Piece;
 
-    public List<Piece> PieceWithAvailableMove<T>(string targetMove) where T : Piece =>
+    public List<Piece> PieceWithAvailableMove(Type pieceType, string targetMove) =>
         Pieces
-            .Where(x => x.GetType() == typeof(T))
+            .Where(x => x.GetType() == pieceType)
             .Where(x => x.AvailableMoves.Any(move => move.Equals(targetMove, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 }

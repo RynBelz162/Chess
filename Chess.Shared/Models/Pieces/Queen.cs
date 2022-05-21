@@ -6,7 +6,7 @@ namespace Chess.Shared.Models.Pieces;
 
 public class Queen : Piece
 {
-    public override char Identifier => Color == ChessColor.White ? 'q' : 'Q';
+    public const char Identifier = 'Q';
 
     public override List<string> RecalculateAvailableMoves(Board board)
     {

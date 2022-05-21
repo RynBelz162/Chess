@@ -70,10 +70,10 @@ public class AlgebraicNotationServiceTests
                 {
                     PieceType = typeof(Rook),
                     TargetSquare = "H8",
-                    PieceSquare = "E3",
+                    PieceSquare = "E8",
                     IsValid = true,
                 },
-                new ChessBoardBuilder().CreatePieceAt('R', ChessFile.E, 3).Build()
+                new ChessBoardBuilder().CreatePieceAt('R', ChessFile.E, 8).Build()
             },
             // bishop takes b2
             new object[]
@@ -100,6 +100,32 @@ public class AlgebraicNotationServiceTests
                     IsValid = true,
                 },
                 new ChessBoardBuilder().CreatePieceAt('Q', ChessFile.E, 3).Build()
+            },
+            // pawn to e4 from e3 but weird
+            new object[]
+            { 
+                "pe3xe4",
+                new MovementRequest
+                {
+                    PieceType = typeof(Pawn),
+                    TargetSquare = "E4",
+                    PieceSquare = "E3",
+                    IsValid = true,
+                },
+                new ChessBoardBuilder().CreatePieceAt('P', ChessFile.E, 3).Build()
+            },
+            // king takes A4 but specific
+            new object[]
+            { 
+                "ka3xa4",
+                new MovementRequest
+                {
+                    PieceType = typeof(King),
+                    TargetSquare = "A4",
+                    PieceSquare = "A3",
+                    IsValid = true,
+                },
+                new ChessBoardBuilder().CreatePieceAt('K', ChessFile.A, 3).Build()
             },
         };
 }

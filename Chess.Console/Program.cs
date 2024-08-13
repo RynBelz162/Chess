@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Chess.Console.Actions;
+﻿using Chess.Console.Actions;
 using Chess.Console.Setup;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
@@ -8,11 +7,19 @@ using Spectre.Console;
 var config = SetupService.BuildConfig();
 var apiUrl = config.GetConnectionString("Api");
 
+if (string.IsNullOrWhiteSpace(apiUrl))
+{
+    throw new Exception("Configuration is not set up correctly");
+}
+
 // Global Variables
 HubConnection connection = null!;
 Guid playerId = Guid.Empty;
 
-var chessTitle = new FigletText("Chess").LeftAligned().Color(Color.Green);
+var chessTitle = new FigletText("Chess")
+    .LeftJustified()
+    .Color(Color.Green);
+
 AnsiConsole.Write(chessTitle);
 
 await AnsiConsole.Status()
@@ -29,7 +36,7 @@ var action = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
         .Title("[bold red]What would you like to do?[/]")
         .PageSize(10)
-        .AddChoices(new[] { "New Game", "Join Game", "Quit" }));
+        .AddChoices(["New Game", "Join Game", "Quit"]));
 
 switch (action)
 {

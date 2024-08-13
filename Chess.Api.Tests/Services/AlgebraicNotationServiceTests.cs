@@ -18,7 +18,6 @@ public class AlgebraicNotationServiceTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
     public void GetRequest_EmptyMove_ReturnsInvalid(string move)

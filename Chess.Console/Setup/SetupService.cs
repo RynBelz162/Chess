@@ -32,7 +32,7 @@ public static class SetupService
     }
 
     public static Guid PromptForGameId() =>
-        AnsiConsole.Prompt<Guid>(
+        AnsiConsole.Prompt(
             new TextPrompt<Guid>("[bold red]Please enter a Game Id to join:[/]")
                 .ValidationErrorMessage("[bold red]That's not a valid game id[/]"));
     

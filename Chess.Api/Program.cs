@@ -1,44 +1,29 @@
-﻿using Orleans.Hosting;
-using Orleans;
-using Chess.Api.Services;
-using Orleans.Configuration;
+﻿using Chess.Api.Services;
 using Chess.Api.Hubs;
 using Serilog;
+using System.Net;
+using Orleans.Configuration;
 
 await Host.CreateDefaultBuilder(args)
     .UseSerilog((ctx, lc) => lc.MinimumLevel.Warning().WriteTo.Console())
     .UseOrleans((ctx, siloBuilder) =>
     {
-        var redisConnectionString = ctx.Configuration.GetConnectionString("Redis");
-        Console.WriteLine($"---> using redis connection string: {redisConnectionString}");
+        var redis = ctx.Configuration.GetConnectionString("Redis");
+        Console.WriteLine($"---> using redis connection string: {redis}");
 
         siloBuilder
-            .Configure<ClusterOptions>(options =>
-            {
-                options.ClusterId = "chess-silo";
-                options.ServiceId = "chess-api";
-            })
             .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
-            .ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory())
-            .UseRedisClustering(redisConnectionString)
-            .AddRedisGrainStorage("chess", options => options.Configure(opt =>
+            .UseRedisClustering(redis)
+            .AddRedisGrainStorage("chess", options =>
             {
-                opt.ConnectionString = redisConnectionString;
-                opt.UseJson = true;
-                opt.DatabaseNumber = 1;
-            }));
-
-        siloBuilder.UseSignalR(opt =>
-        {
-            opt.UseFireAndForgetDelivery = true;
-            opt.Configure((builder, constants) => 
+                options.DatabaseNumber = 1;
+                options.ConnectionString = redis;
+            })
+            .UseSignalR(options =>
             {
-                builder
-                    .AddMemoryGrainStorage(constants.PubSubProvider)
-                    .AddMemoryGrainStorage(constants.StorageProvider);
-            });
-        })
-        .RegisterHub<GameHub>();
+                options.UseFireAndForgetDelivery = true;
+            })
+            .RegisterHub<GameHub>();
     })
     .ConfigureWebHostDefaults(webBuilder =>
     {
@@ -60,11 +45,13 @@ await Host.CreateDefaultBuilder(args)
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<GameHub>("/game");
+                endpoints.MapGet("/", () => "Hello World!");
             });
         });
     })
     .ConfigureServices(collection =>
     {
         collection.AddTransient<ISetupService, SetupService>();
+        collection.AddTransient<IAlgebraicNotationService, AlgebraicNotationService>();
     })
     .RunConsoleAsync();

@@ -1,10 +1,9 @@
 using Chess.Api.Grains;
 using Microsoft.AspNetCore.Mvc;
-using Orleans;
 
 namespace Chess.Api.Controllers;
 
-[Route("Player")]
+[Route("[controller]")]
 public class PlayerController : ControllerBase
 {
     private readonly IGrainFactory _grainFactory;

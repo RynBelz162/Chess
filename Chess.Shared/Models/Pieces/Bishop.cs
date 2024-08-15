@@ -4,7 +4,7 @@ using Chess.Shared.Models.Movement;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class Bishop : Piece
+public class Bishop(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'B';
 
@@ -22,7 +22,7 @@ public class Bishop : Piece
                 return new MovementResult(false, file, rank);
             }
 
-            if (board.PieceColorOnSqaure(targetSquare) != Color)
+            if (board.PieceColorOnSquare(targetSquare) != Color)
             {
                 return new MovementResult(true, file, rank);
             }

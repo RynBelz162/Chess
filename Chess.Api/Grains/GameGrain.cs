@@ -71,7 +71,7 @@ public class GameGrain : Grain, IGrameGrain
         }
 
         var request = _algebraicNotationService.GetRequest(move, _gameState.State.Board);
-        var piece = _gameState.State.Board.PieceOnSqaure(request.PieceSquare);
+        var piece = _gameState.State.Board.PieceOnSquare(request.PieceSquare);
         if (piece is null)
         {
             throw new ApplicationException("Piece not available to move");

@@ -3,7 +3,7 @@ using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class King : Piece
+public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'K';
 
@@ -149,7 +149,7 @@ public class King : Piece
             return true;
         }
 
-        if (board.PieceColorOnSqaure(targetSqaure) == Color)
+        if (board.PieceColorOnSquare(targetSqaure) == Color)
         {
             return false;
         }
@@ -193,7 +193,7 @@ public class King : Piece
 
     private void AddMoveIfCanCastle(ICollection<string> moves, Board board, string rookSquare, string targetSqaure)
     {
-        var targetPiece = board.PieceOnSqaure(rookSquare);
+        var targetPiece = board.PieceOnSquare(rookSquare);
         if (targetPiece is Rook rook && rook.NumberOfMoves == 0)
         {
             moves.Add(targetSqaure);

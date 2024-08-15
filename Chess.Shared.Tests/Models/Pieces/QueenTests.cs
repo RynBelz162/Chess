@@ -1,4 +1,3 @@
-using System.Linq;
 using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
@@ -10,10 +9,13 @@ public class QueenTests
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_MovesAllDirections()
     {
-        var queen = new Queen { Color = ChessColor.White };
+        var queen = new Queen(ChessFile.D, 4)
+        {
+            Color = ChessColor.White
+        };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(queen, ChessFile.D, 4)
+            .PlacePiece(queen)
             .Build();
 
         var moves = queen.RecalculateAvailableMoves(board);
@@ -31,9 +33,13 @@ public class QueenTests
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
     {
-        var queen = new Queen { Color = ChessColor.White };
+        var queen = new Queen(ChessFile.E, 4)
+        {
+            Color = ChessColor.White
+        };
+
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(queen, ChessFile.E, 4)
+            .PlacePiece(queen)
             .CreatePieceAt('p', ChessFile.B, 4)
             .CreatePieceAt('q', ChessFile.E, 7)
             .CreatePieceAt('r', ChessFile.F, 4)

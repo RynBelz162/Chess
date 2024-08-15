@@ -11,13 +11,13 @@ public class BishopTests
     [InlineData(ChessColor.Black)]
     public void RecalculateAvailableMoves_NoBlockers(ChessColor color)
     {
-        var bishop = new Bishop
+        var bishop = new Bishop(ChessFile.E, 4)
         {
             Color = color
         };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(bishop, ChessFile.E, 4)
+            .PlacePiece(bishop)
             .Build();
 
         var availableMoves = bishop.RecalculateAvailableMoves(board);
@@ -32,13 +32,13 @@ public class BishopTests
     [Fact]
     public void RecalculateAvailableMoves_White_Blockers_NoMoves()
     {
-        var bishop = new Bishop
+        var bishop = new Bishop(ChessFile.E, 4)
         {
             Color = ChessColor.White
         };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(bishop, ChessFile.E, 4)
+            .PlacePiece(bishop)
             .CreatePieceAt('P', ChessFile.D, 5)
             .CreatePieceAt('Q', ChessFile.D, 3)
             .CreatePieceAt('K', ChessFile.F, 5)
@@ -53,13 +53,13 @@ public class BishopTests
     [Fact]
     public void RecalculateAvailableMoves_Black_Blockers_NoMoves()
     {
-        var bishop = new Bishop
+        var bishop = new Bishop(ChessFile.E, 4)
         {
             Color = ChessColor.Black
         };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(bishop, ChessFile.E, 4)
+            .PlacePiece(bishop)
             .CreatePieceAt('p', ChessFile.D, 5)
             .CreatePieceAt('q', ChessFile.D, 3)
             .CreatePieceAt('k', ChessFile.F, 5)
@@ -74,13 +74,13 @@ public class BishopTests
     [Fact]
     public void RecalculateAvailableMoves_White_Captures_HasMoves()
     {
-        var bishop = new Bishop
+        var bishop = new Bishop(ChessFile.E, 4)
         {
             Color = ChessColor.White
         };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(bishop, ChessFile.E, 4)
+            .PlacePiece(bishop)
             .CreatePieceAt('p', ChessFile.D, 5)
             .CreatePieceAt('q', ChessFile.D, 3)
             .CreatePieceAt('k', ChessFile.F, 5)
@@ -99,13 +99,13 @@ public class BishopTests
     [Fact]
     public void RecalculateAvailableMoves_Black_Captures_HasMoves()
     {
-        var bishop = new Bishop
+        var bishop = new Bishop(ChessFile.E, 4)
         {
             Color = ChessColor.Black
         };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(bishop, ChessFile.E, 4)
+            .PlacePiece(bishop)
             .CreatePieceAt('P', ChessFile.D, 5)
             .CreatePieceAt('Q', ChessFile.D, 3)
             .CreatePieceAt('K', ChessFile.F, 5)

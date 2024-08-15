@@ -1,4 +1,5 @@
 using Chess.Shared.Constants;
+using Chess.Shared.Helpers;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;
 
@@ -16,7 +17,7 @@ public class SetupService : ISetupService
     {
         ChessColor.White => ChessColor.Black,
         ChessColor.Black => ChessColor.White,
-        _ => throw new ArgumentException(nameof(color)),
+        _ => throw new ArgumentException("Color is not a possible Chess color value", nameof(color)),
     };
 
     public Board InitializeBoard() 
@@ -26,15 +27,20 @@ public class SetupService : ISetupService
             Pieces = InitializePieces()
         };
 
-        Parallel.ForEach(board.Pieces, piece =>
+        // Parallel.ForEach(board.Pieces, piece =>
+        // {
+        //     piece.AvailableMoves = piece.RecalculateAvailableMoves(board);
+        // });
+
+        foreach (var piece in board.Pieces)
         {
             piece.AvailableMoves = piece.RecalculateAvailableMoves(board);
-        });
+        }
         
         return board;
     }
 
-    private HashSet<Piece> InitializePieces()
+    private static HashSet<Piece> InitializePieces()
     {
         var result = new HashSet<Piece>();
         AddWhite(result);
@@ -42,10 +48,10 @@ public class SetupService : ISetupService
         return result;
     }
 
-    private void AddWhite(HashSet<Piece> pieceDict)
+    private static void AddWhite(HashSet<Piece> pieceDict)
     {
-        pieceDict.Add(new Queen() { Color = ChessColor.White });
-        pieceDict.Add(new King() { Color = ChessColor.White });
+        pieceDict.Add(new Queen(ChessFile.D, 1) { Color = ChessColor.White });
+        pieceDict.Add(new King(ChessFile.E, 1) { Color = ChessColor.White });
 
         CreatePieces<Rook>(pieceDict, 2, ChessColor.White);
         CreatePieces<Knight>(pieceDict, 2, ChessColor.White);
@@ -53,10 +59,10 @@ public class SetupService : ISetupService
         CreatePieces<Pawn>(pieceDict, 8, ChessColor.White);
     }
 
-    private void AddBlack(HashSet<Piece> pieceDict)
+    private static void AddBlack(HashSet<Piece> pieceDict)
     {
-        pieceDict.Add(new Queen() { Color = ChessColor.Black });
-        pieceDict.Add(new King() { Color = ChessColor.Black });
+        pieceDict.Add(new Queen(ChessFile.D, 8) { Color = ChessColor.Black });
+        pieceDict.Add(new King(ChessFile.E, 8) { Color = ChessColor.Black });
 
         CreatePieces<Rook>(pieceDict, 2, ChessColor.Black);
         CreatePieces<Knight>(pieceDict, 2, ChessColor.Black);
@@ -64,22 +70,34 @@ public class SetupService : ISetupService
         CreatePieces<Pawn>(pieceDict, 8, ChessColor.Black);
     }
 
-    private void CreatePieces<T>(HashSet<Piece> pieceDict, int numberToCreate, ChessColor color) where T : Piece
+    private static void CreatePieces<T>(HashSet<Piece> pieceDict, int numberToCreate, ChessColor color) where T : Piece
     {
         for (int i = 0; i < numberToCreate; i++)
         {
-            var piece = CreatePieceType<T>(color);
+            var piece = CreatePieceType<T>(color, i + 1);
             pieceDict.Add(piece);
         }
     }
 
-    private Piece CreatePieceType<T>(ChessColor color) where T : Piece =>
-        typeof(T) switch
+    private static Piece CreatePieceType<T>(ChessColor color, int index) where T : Piece
+    {
+        var rank = color == ChessColor.White ? 1 : 8;
+
+        return typeof(T) switch
         {
-            Type t when t == typeof(Pawn) => new Pawn() { Color = color },
-            Type t when t == typeof(Knight) => new Knight() { Color = color },
-            Type t when t == typeof(Rook) => new Rook() { Color = color },
-            Type t when t == typeof(Bishop) => new Bishop() { Color = color },
+            Type t when t == typeof(Pawn) =>
+                new Pawn(index.ToChessFile(), rank) { Color = color },
+
+            Type t when t == typeof(Knight) =>
+                new Knight(index == 1 ? ChessFile.B : ChessFile.G, rank) { Color = color },
+
+            Type t when t == typeof(Rook) =>
+                new Rook(index == 1 ? ChessFile.A : ChessFile.H, rank) { Color = color },
+
+            Type t when t == typeof(Bishop) =>
+                new Bishop(index == 1 ? ChessFile.C : ChessFile.F, rank) { Color = color },
+
             _ => throw new NotImplementedException()
         };
+    }
 }

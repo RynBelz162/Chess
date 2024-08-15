@@ -4,11 +4,11 @@ namespace Chess.Shared.Helpers;
 
 public static class ChessFileHelper 
 {
-    private static readonly ChessFile[] _allFiles = Array.Empty<ChessFile>();
+    private static readonly ChessFile[] _allFiles = [];
     public static readonly char[] OrderedFiles;
     static ChessFileHelper()
     {
-        if (!_allFiles.Any())
+        if (_allFiles.Length == 0)
         {
             _allFiles = Enum.GetValues<ChessFile>();
         }
@@ -29,14 +29,28 @@ public static class ChessFileHelper
     private static char[] GetOrderedFiles()
     {
         var files = _allFiles
-            .Select(x => ((char)x))
+            .Select(x => (char)x)
             .ToArray();
 
-        if (files is null || !files.Any())
+        if (files is null || files.Length == 0)
         {
             throw new ApplicationException("Missing files constants.");
         }
 
         return files;
     }
+
+    public static ChessFile ToChessFile(this int value) =>
+        value switch 
+        {
+            1 => ChessFile.A,
+            2 => ChessFile.B,
+            3 => ChessFile.C,
+            4 => ChessFile.D,
+            5 => ChessFile.E,
+            6 => ChessFile.F,
+            7 => ChessFile.G,
+            8 => ChessFile.H,
+            _ => throw new ArgumentException("Invalid integer to ChessFile", nameof(value))
+        };
 }

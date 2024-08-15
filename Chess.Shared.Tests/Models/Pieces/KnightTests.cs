@@ -9,9 +9,13 @@ public class KnightTests
     [Fact]
     public void RecalculateAvailableMoves_CanMoveAllDirections()
     {
-        var knight = new Knight { Color = ChessColor.White };
+        var knight = new Knight(ChessFile.C, 3)
+        {
+            Color = ChessColor.White
+        };
+
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(knight, ChessFile.C, 3)
+            .PlacePiece(knight)
             .Build();
 
         var availableMoves = knight.RecalculateAvailableMoves(board);
@@ -25,12 +29,15 @@ public class KnightTests
     }
 
     [Fact]
-    public void RecaclulateAvailableMoves_EdgeOfBoard_CantMoveLeft()
+    public void RecalculateAvailableMoves_EdgeOfBoard_CantMoveLeft()
     {
-        var knight = new Knight { Color = ChessColor.White };
+        var knight = new Knight(ChessFile.A, 3)
+        {
+            Color = ChessColor.White
+        };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(knight, ChessFile.A, 3)
+            .PlacePiece(knight)
             .CreatePieceAt('P', ChessFile.C, 4)
             .CreatePieceAt('k', ChessFile.B, 5)
             .Build();
@@ -46,12 +53,15 @@ public class KnightTests
     }
 
     [Fact]
-    public void RecaclulateAvailableMoves_EdgeOfBoard_CantMoveRight()
+    public void RecalculateAvailableMoves_EdgeOfBoard_CantMoveRight()
     {
-        var knight = new Knight { Color = ChessColor.White };
+        var knight = new Knight(ChessFile.H, 3)
+        {
+            Color = ChessColor.White
+        };
 
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(knight, ChessFile.H, 3)
+            .PlacePiece(knight)
             .CreatePieceAt('p', ChessFile.F, 4)
             .CreatePieceAt('k', ChessFile.G, 5)
             .Build();

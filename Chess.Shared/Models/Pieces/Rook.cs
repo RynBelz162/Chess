@@ -4,7 +4,7 @@ using Chess.Shared.Models.Movement;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class Rook : Piece
+public class Rook(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'R';
 
@@ -21,7 +21,7 @@ public class Rook : Piece
                 return new MovementResult(false, file, rank);
             }
 
-            if (board.PieceColorOnSqaure(targetSquare) != Color)
+            if (board.PieceColorOnSquare(targetSquare) != Color)
             {
                 return new MovementResult(true, file, rank);
             }

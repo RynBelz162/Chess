@@ -6,11 +6,13 @@ using Chess.Shared.Models.Pieces;
 
 namespace Chess.Api.Services;
 
-public class AlgebraicNotationService : IAlgebraicNotationService
+public partial class AlgebraicNotationService : IAlgebraicNotationService
 {
     private const int MinimumValidMoveLength = 2;
     private const int MaximumValidMoveLength = 6;
-    private Regex MoveRegex = new Regex("\\w\\d", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    [GeneratedRegex("\\w\\d", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex MoveRegex();
 
     public MovementRequest GetRequest(string move, Board board)
     {
@@ -50,9 +52,9 @@ public class AlgebraicNotationService : IAlgebraicNotationService
         return null;
     }
     
-    private MovementRequest? PawnMoves(string move, Board board)
+    private static MovementRequest? PawnMoves(string move, Board board)
     {
-        // first charcter is not a pawn move
+        // first character is not a pawn move
         var firstChar = move[0];
         var isPieceIdentifier = ChessPieceHelper.IsPieceIdentifier(firstChar);
 
@@ -61,7 +63,7 @@ public class AlgebraicNotationService : IAlgebraicNotationService
             return null;
         }
 
-        var matches = MoveRegex.Matches(move);
+        var matches = MoveRegex().Matches(move);
 
         return matches.Count switch
         {
@@ -71,7 +73,7 @@ public class AlgebraicNotationService : IAlgebraicNotationService
         };
     }
 
-    private MovementRequest? NonPawnMoves(string move, Board board)
+    private static MovementRequest? NonPawnMoves(string move, Board board)
     {
         var piece = move[0];
         var pieceType = ChessPieceHelper.TypeFromIdentifier(piece);
@@ -81,7 +83,7 @@ public class AlgebraicNotationService : IAlgebraicNotationService
             return MovementRequest.InvalidMove;
         }
 
-        var matches = MoveRegex.Matches(move);
+        var matches = MoveRegex().Matches(move);
 
         return matches.Count switch
         {
@@ -91,9 +93,9 @@ public class AlgebraicNotationService : IAlgebraicNotationService
         };
     }
 
-    private MovementRequest CreateResult(Type pieceType, Board board, string targetSquare, string? fromSqaure = null)
+    private static MovementRequest CreateResult(Type pieceType, Board board, string targetSquare, string? fromSquare = null)
     {
-        if (fromSqaure is null)
+        if (fromSquare is null)
         {
             var piecesMoving = board.PieceWithAvailableMove(pieceType, targetSquare);
             if (piecesMoving.Count != 1)
@@ -101,14 +103,14 @@ public class AlgebraicNotationService : IAlgebraicNotationService
                 return MovementRequest.AmbiguousMove;
             }
 
-            fromSqaure = piecesMoving[0].CurrentSqaure;
+            fromSquare = piecesMoving[0].CurrentSquare;
         }
 
         return new MovementRequest
         {
             TargetSquare = targetSquare.ToUpper(),
             PieceType = pieceType,
-            PieceSquare = fromSqaure.ToUpper()
+            PieceSquare = fromSquare.ToUpper()
         };
     }
 }

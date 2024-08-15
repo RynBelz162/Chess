@@ -11,8 +11,8 @@ public class Board
     private const string StartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQKNR";
     public string CurrentFen { get; set; } = StartingFen;
     
-    public Dictionary<string, Square> Squares { get; set; } = new Dictionary<string, Square>();
-    public HashSet<Piece> Pieces { get; set; } = new HashSet<Piece>();
+    public Dictionary<string, Square> Squares { get; set; } = [];
+    public HashSet<Piece> Pieces { get; set; } = [];
 
     public Board()
     {
@@ -28,11 +28,11 @@ public class Board
     public bool IsSquareOccupied(string targetSquare) =>
         Squares[targetSquare].IsOccupied;
 
-    public ChessColor? PieceColorOnSqaure(string targetSquare) =>
+    public ChessColor? PieceColorOnSquare(string targetSquare) =>
         Squares[targetSquare].Piece?.Color;
 
-    public Piece? PieceOnSqaure(string targetSqaure) =>
-        Squares[targetSqaure].Piece;
+    public Piece? PieceOnSquare(string targetSquare) =>
+        Squares[targetSquare].Piece;
 
     public List<Piece> PieceWithAvailableMove(Type pieceType, string targetMove) =>
         Pieces

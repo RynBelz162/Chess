@@ -6,20 +6,24 @@ namespace Chess.Shared.Tests.Models.Pieces;
 
 public class KingTests
 {
+    private static King _defaultKingPiece =>
+        new(ChessFile.D, 4)
+        {
+            Color = ChessColor.White
+        };
+
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_MovesAllDirections()
     {
-        var king = new King { Color = ChessColor.White };
-
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(king, ChessFile.D, 4)
+            .PlacePiece(_defaultKingPiece)
             .Build();
 
-        var moves = king.RecalculateAvailableMoves(board);
-        var expectedMoves = new List<string>
-        {
+        var moves = _defaultKingPiece.RecalculateAvailableMoves(board);
+        List<string> expectedMoves =
+        [
             "D5", "D3", "C4", "E4", "C5", "C3", "E3", "E5"
-        };
+        ];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
@@ -27,19 +31,18 @@ public class KingTests
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
     {
-        var king = new King { Color = ChessColor.White };
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(king, ChessFile.D, 4)
+            .PlacePiece(_defaultKingPiece)
             .CreatePieceAt('p', ChessFile.D, 5)
             .CreatePieceAt('q', ChessFile.E, 4)
             .CreatePieceAt('N', ChessFile.C, 5)
             .Build();
 
-        var moves = king.RecalculateAvailableMoves(board);
-        var expectedMoves = new List<string>
-        {
+        var moves = _defaultKingPiece.RecalculateAvailableMoves(board);
+        List<string> expectedMoves =
+        [
             "D5", "D3", "C4", "E4", "C3", "E3", "E5"
-        };
+        ];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }

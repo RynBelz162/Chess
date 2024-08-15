@@ -3,7 +3,7 @@ using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class Pawn : Piece
+public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'P';
 
@@ -42,10 +42,10 @@ public class Pawn : Piece
         }
 
         var targetRank = Color == ChessColor.White ? NextRankForColor + 1 : NextRankForColor - 1;
-        var targetSecondSqaure = $"{CurrentFile}{targetRank}";
+        var targetSecondSquare = $"{CurrentFile}{targetRank}";
         if(!board.IsSquareOccupied(targetSquare))
         {
-            moves.Add(targetSecondSqaure);
+            moves.Add(targetSecondSquare);
         }
     }
 
@@ -67,7 +67,7 @@ public class Pawn : Piece
         }
 
         // Can capture piece
-        if (IsOccupied && board.PieceColorOnSqaure(targetSquare) != this.Color)
+        if (IsOccupied && board.PieceColorOnSquare(targetSquare) != this.Color)
         {
             moves.Add(targetSquare);
         }
@@ -83,12 +83,12 @@ public class Pawn : Piece
             return;
         }
 
-        if (board.PieceColorOnSqaure(nextToPawn) == this.Color)
+        if (board.PieceColorOnSquare(nextToPawn) == this.Color)
         {
             return;
         }
 
-        var pieceNextToPawn = board.PieceOnSqaure(nextToPawn);
+        var pieceNextToPawn = board.PieceOnSquare(nextToPawn);
         if (pieceNextToPawn?.NumberOfMoves == 0 && pieceNextToPawn is Pawn)
         {
             moves.Add($"{file}{rank}");

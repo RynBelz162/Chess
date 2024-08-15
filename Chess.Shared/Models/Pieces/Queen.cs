@@ -4,36 +4,36 @@ using Chess.Shared.Models.Movement;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class Queen : Piece
+public class Queen(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'Q';
 
     public override List<string> RecalculateAvailableMoves(Board board)
     {
         var moves = new List<string>();
-        Func<ChessFile, int, MovementResult> canMoveToSquare = (file, rank) =>
+        MovementResult canMoveToSquare(ChessFile file, int rank)
         {
             var targetSquare = $"{file}{rank}";
             var isOccupied = board.IsSquareOccupied(targetSquare);
-            
+
             if (!isOccupied)
             {
                 return new MovementResult(false, file, rank);
             }
 
-            if (board.PieceColorOnSqaure(targetSquare) != Color)
+            if (board.PieceColorOnSquare(targetSquare) != Color)
             {
                 return new MovementResult(true, file, rank);
             }
 
             return new MovementResult(true, null, null);
-        };
+        }
 
-        Action<MovementResult> addToMoves = result =>
+        void addToMoves(MovementResult result)
         {
             if (!result.HasTargetSquare) return;
             moves.Add($"{result.TargetFile}{result.TargetRank}");
-        };
+        }
 
         // left, right, up, down
         this.Forward(canMoveToSquare, addToMoves);

@@ -6,7 +6,7 @@ using Chess.Shared.Models;
 using Chess.Shared.Models.Movement;
 using Chess.Shared.Models.Pieces;
 
-namespace Chess.Api.Tests;
+namespace Chess.Api.Tests.Services;
 
 public class AlgebraicNotationServiceTests
 {

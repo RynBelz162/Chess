@@ -3,7 +3,7 @@ using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
 
-public class Knight : Piece
+public class Knight(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'N';
 
@@ -168,7 +168,7 @@ public class Knight : Piece
             return true;
         }
 
-        if (board.PieceColorOnSqaure(targetSqaure) == Color)
+        if (board.PieceColorOnSquare(targetSqaure) == Color)
         {
             return false;
         }

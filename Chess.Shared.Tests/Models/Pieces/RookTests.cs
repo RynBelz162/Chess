@@ -9,9 +9,13 @@ public class RookTests
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_MovesLeftRightUpDown()
     {
-        var rook = new Rook { Color = ChessColor.White };
+        var rook = new Rook(ChessFile.D, 4)
+        {
+            Color = ChessColor.White
+        };
+
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(rook, ChessFile.D, 4)
+            .PlacePiece(rook)
             .Build();
 
         var moves = rook.RecalculateAvailableMoves(board);
@@ -26,9 +30,13 @@ public class RookTests
     [Fact]
     public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
     {
-        var rook = new Rook { Color = ChessColor.White };
+        var rook = new Rook(ChessFile.E, 4)
+        {
+            Color = ChessColor.White
+        };
+
         var board = new ChessBoardBuilder()
-            .PlacePieceAt(rook, ChessFile.E, 4)
+            .PlacePiece(rook)
             .CreatePieceAt('p', ChessFile.B, 4)
             .CreatePieceAt('q', ChessFile.E, 7)
             .CreatePieceAt('r', ChessFile.F, 4)

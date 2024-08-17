@@ -27,15 +27,11 @@ public class SetupService : ISetupService
             Pieces = InitializePieces()
         };
 
-        // Parallel.ForEach(board.Pieces, piece =>
-        // {
-        //     piece.AvailableMoves = piece.RecalculateAvailableMoves(board);
-        // });
-
-        foreach (var piece in board.Pieces)
+        Parallel.ForEach(board.Pieces, piece =>
         {
+            board.Squares[piece.CurrentSquare].Piece = piece;
             piece.AvailableMoves = piece.RecalculateAvailableMoves(board);
-        }
+        });
         
         return board;
     }
@@ -82,11 +78,12 @@ public class SetupService : ISetupService
     private static Piece CreatePieceType<T>(ChessColor color, int index) where T : Piece
     {
         var rank = color == ChessColor.White ? 1 : 8;
+        var pawnRank = color == ChessColor.White ? 2: 7;
 
         return typeof(T) switch
         {
             Type t when t == typeof(Pawn) =>
-                new Pawn(index.ToChessFile(), rank) { Color = color },
+                new Pawn(index.ToChessFile(), pawnRank) { Color = color },
 
             Type t when t == typeof(Knight) =>
                 new Knight(index == 1 ? ChessFile.B : ChessFile.G, rank) { Color = color },

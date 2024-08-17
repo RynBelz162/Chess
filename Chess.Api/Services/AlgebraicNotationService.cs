@@ -37,14 +37,14 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
         return MovementRequest.InvalidMove;
     }
     
-    private MovementRequest? IsInvalidMove(string move)
+    private static MovementRequest? IsInvalidMove(string move)
     {
         if (string.IsNullOrWhiteSpace(move))
         {
             return MovementRequest.NoMove;
         }
 
-        if (move.Length < 2 || move.Length > 6)
+        if (move.Length < MinimumValidMoveLength || move.Length > MaximumValidMoveLength)
         {
             return MovementRequest.InvalidMove;
         }
@@ -56,7 +56,6 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
     {
         // first character is not a pawn move
         var firstChar = move[0];
-        var isPieceIdentifier = ChessPieceHelper.IsPieceIdentifier(firstChar);
 
         if (ChessPieceHelper.IsPieceIdentifier(firstChar) && firstChar != 'p' && firstChar != 'P')
         {

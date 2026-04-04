@@ -1,8 +1,9 @@
-using Chess.Shared.Models;
+﻿using Chess.Shared.Models;
 using Chess.Api.Services;
 using Orleans.Providers;
 using Orleans.Runtime;
 using Chess.Shared.Models.State;
+using Chess.Shared.Enums;
 
 namespace Chess.Api.Grains;
 
@@ -35,6 +36,7 @@ public class GameGrain : Grain, IGrameGrain
                 Color = _setupService.DeterminePlayerColor(),
                 IsCurrentTurn = true,
             },
+            Status = GameStatus.WaitingForOpponent,
             CreatedOn = DateTime.UtcNow
         };
 
@@ -48,6 +50,7 @@ public class GameGrain : Grain, IGrameGrain
             throw new ApplicationException("Trying to join an invalid game session");
         }
 
+        _gameState.State.Status = GameStatus.InProgress;
         _gameState.State.PlayerTwo = new Player
         {
             UserId = userId,
@@ -56,6 +59,23 @@ public class GameGrain : Grain, IGrameGrain
         };
 
         await _gameState.WriteStateAsync();
+    }
+
+    public async Task<Guid> Resign(Guid userId)
+    {
+        var player = GetPlayer(userId);
+
+        _gameState.State.Status = GameStatus.Resigned;
+
+        var oppositePlayer = player.UserId == _gameState.State.PlayerOne.UserId
+            ? _gameState.State.PlayerTwo
+            : _gameState.State.PlayerOne;
+
+        _gameState.State.WinnerUserId = oppositePlayer?.UserId;
+
+        await _gameState.WriteStateAsync();
+
+        return _gameState.State.GameId;
     }
 
     public Task Move(string move, Guid userId)
@@ -94,7 +114,7 @@ public class GameGrain : Grain, IGrameGrain
 
     private Player GetPlayer(Guid userId)
     {
-        if (!DoesGameHaveBothPlayers())
+        if (_gameState.State.Status == GameStatus.WaitingForOpponent)
         {
             throw new ApplicationException("Both players are not ready to start.");
         }
@@ -102,10 +122,12 @@ public class GameGrain : Grain, IGrameGrain
         if (_gameState.State.PlayerOne.UserId == userId)
         {
             return _gameState.State.PlayerOne;
+        } 
+        else if (_gameState.State.PlayerTwo?.UserId == userId)
+        {
+            return _gameState.State.PlayerTwo;
         }
 
-        return _gameState.State.PlayerTwo!;
+        throw new ApplicationException("Player not found in game.");
     }
-
-    private bool DoesGameHaveBothPlayers() => _gameState.State.PlayerTwo != null;
 }

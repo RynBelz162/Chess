@@ -47,13 +47,13 @@ switch (action)
 {
     case "New Game":
         await SetupActions.CreateGame(connection, playerId);
-        SetupActions.PlayingGame(connection, false);
+        await SetupActions.PlayingGame(connection, playerId, isJoining: false);
         break;
 
     case "Join Game":
         var gameId = SetupService.PromptForGameId();
         await SetupActions.JoinGame(connection, playerId, gameId);
-        SetupActions.PlayingGame(connection, true);
+        await SetupActions.PlayingGame(connection, playerId, isJoining: true);
         break;
 
     case "Quit":

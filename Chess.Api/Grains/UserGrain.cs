@@ -1,5 +1,4 @@
-using Chess.Shared.Models.State;
-using Orleans;
+﻿using Chess.Shared.Models.State;
 using Orleans.Providers;
 using Orleans.Runtime;
 
@@ -21,8 +20,11 @@ public class UserGrain : Grain, IUserGrain
 
     public async Task Create()
     {
-        _playerState.State = new UserState();
-        _playerState.State.UserId = this.GetPrimaryKey();
+        _playerState.State = new UserState
+        {
+            UserId = this.GetPrimaryKey()
+        };
+
         await _playerState.WriteStateAsync();
     }
 
@@ -53,6 +55,18 @@ public class UserGrain : Grain, IUserGrain
         
         _playerState.State.CurrentGameId = gameId;
         await _playerState.WriteStateAsync();
+    }
+
+    public async Task<Guid> Resign()
+    {
+        var currentGameId = _playerState.State.CurrentGameId ?? 
+            throw new ApplicationException("Player is not currently in a game.");
+
+        var gameId = await _grainFactory
+            .GetGrain<GameGrain>(currentGameId)
+            .Resign(this.GetPrimaryKey());
+
+        return gameId;
     }
 
     public async Task<Guid> Move(string move)

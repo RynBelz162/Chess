@@ -1,5 +1,4 @@
-using Chess.Console.Services;
-using Chess.Shared.Models.State;
+﻿using Chess.Shared.Models.State;
 using Microsoft.AspNetCore.SignalR.Client;
 using Spectre.Console;
 
@@ -18,7 +17,12 @@ public static class SetupActions
         await connection.InvokeAsync("Join", gameId, playerId);
     }
 
-    public static void PlayingGame(HubConnection connection, bool isJoining)
+    public static async Task Resign(HubConnection connection, Guid playerId)
+    {
+        await connection.InvokeAsync("Resign", playerId);
+    }
+
+    public static async Task PlayingGame(HubConnection connection, Guid playerId, bool isJoining)
     {
         if (!isJoining)
         {
@@ -28,10 +32,20 @@ public static class SetupActions
         AnsiConsole.Markup("[bold red]Game is ready![/]");
         AnsiConsole.WriteLine();
 
+        connection.On("Resigned", () =>
+        {
+            AnsiConsole.MarkupLine("[bold red]Your opponent has resigned. You win![/]");
+            Environment.Exit(0);
+        });
+
         while (true)
         {
             var resign = AnsiConsole.Confirm("Resign?");
-            if (resign) Environment.Exit(0);
+            if (resign)
+            {
+                await Resign(connection, playerId);
+                Environment.Exit(0);
+            }
         }
     }
 

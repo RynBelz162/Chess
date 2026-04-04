@@ -1,4 +1,4 @@
-using Chess.Api.Grains;
+﻿using Chess.Api.Grains;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess.Api.Hubs;
@@ -42,6 +42,15 @@ public class GameHub : Hub
 
         await Clients.Group(gameId.ToString())
             .SendAsync("PlayerJoined", gameSnapshot.Value);
+    }
+
+    public async Task Resign(Guid playerId)
+    {
+        var gameId = await _grainFactory
+            .GetGrain<IUserGrain>(playerId)
+            .Resign();
+
+        await Clients.Group(gameId.ToString()).SendAsync("Resigned");
     }
 
     public async Task MovePiece(string move, Guid playerId)

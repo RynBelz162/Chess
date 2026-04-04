@@ -1,6 +1,6 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Chess.Shared.Tests.Helpers;

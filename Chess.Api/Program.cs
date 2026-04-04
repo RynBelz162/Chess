@@ -1,8 +1,7 @@
 ﻿using Chess.Api.Services;
 using Chess.Api.Hubs;
 using Serilog;
-using System.Net;
-using Orleans.Configuration;
+using Orleans.Serialization;
 
 await Host.CreateDefaultBuilder(args)
     .UseSerilog((ctx, lc) => lc.MinimumLevel.Warning().WriteTo.Console())
@@ -24,6 +23,16 @@ await Host.CreateDefaultBuilder(args)
                 options.UseFireAndForgetDelivery = true;
             })
             .RegisterHub<GameHub>();
+
+            siloBuilder.Services.AddSerializer(serializerBuilder =>
+            {
+                serializerBuilder.AddJsonSerializer(
+                    isSupported: type => type.Namespace!.StartsWith("Chess.Shared.Models"),
+                    new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            });
     })
     .ConfigureWebHostDefaults(webBuilder =>
     {

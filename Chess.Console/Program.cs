@@ -1,8 +1,11 @@
-﻿using Chess.Console.Actions;
+﻿using Chess.Console;
+using Chess.Console.Actions;
 using Chess.Console.Setup;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Spectre.Console;
+
+DependencyInjection.Initialize();
 
 var config = SetupService.BuildConfig();
 var apiUrl = config.GetConnectionString("Api");
@@ -29,6 +32,8 @@ await AnsiConsole.Status()
         await Task.Delay(1000);
     });
 
+connection.On<string>("Error", _ => AnsiConsole.MarkupLine("There was an unexpected issue."));
+
 AnsiConsole.MarkupLine("[bold red]Welcome Player:[/] {0}", playerId.ToString());
 AnsiConsole.WriteLine();
 
@@ -41,14 +46,14 @@ var action = AnsiConsole.Prompt(
 switch (action)
 {
     case "New Game":
-        await GameActions.CreateGame(connection, playerId);
-        GameActions.PlayingGame(connection, playerId, false);
+        await SetupActions.CreateGame(connection, playerId);
+        SetupActions.PlayingGame(connection, false);
         break;
 
     case "Join Game":
         var gameId = SetupService.PromptForGameId();
-        await GameActions.JoinGame(connection, playerId, gameId);
-        GameActions.PlayingGame(connection, playerId, true);
+        await SetupActions.JoinGame(connection, playerId, gameId);
+        SetupActions.PlayingGame(connection, true);
         break;
 
     case "Quit":

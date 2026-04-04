@@ -1,6 +1,5 @@
 using Chess.Shared.Models;
 using Chess.Api.Services;
-using Orleans;
 using Orleans.Providers;
 using Orleans.Runtime;
 using Chess.Shared.Models.State;
@@ -11,18 +10,15 @@ namespace Chess.Api.Grains;
 public class GameGrain : Grain, IGrameGrain
 {
     private readonly IPersistentState<GameState> _gameState;
-    private readonly IGrainFactory _grainFactory;
     private readonly ISetupService _setupService;
     private readonly IAlgebraicNotationService _algebraicNotationService;
 
     public GameGrain(
         [PersistentState("game", "chess")] IPersistentState<GameState> gameState,
-        IGrainFactory grainFactory,
         ISetupService setupService,
         IAlgebraicNotationService algebraicNotationService)
     {
         _gameState = gameState;
-        _grainFactory = grainFactory;
         _setupService = setupService;
         _algebraicNotationService = algebraicNotationService;
     }
@@ -79,6 +75,21 @@ public class GameGrain : Grain, IGrameGrain
 
         piece.Move(request.TargetSquare, _gameState.State.Board);
         return Task.CompletedTask;
+    }
+
+    public Task<Result<GameStateSnapshot>> GetGameSnapshot()
+    {
+        if (_gameState.State.PlayerTwo is null)
+        {
+            return Task.FromResult(Result.Fail<GameStateSnapshot>("Game has not started yet"));
+        }
+
+        return Task.FromResult(Result.Ok(new GameStateSnapshot
+        {
+            PlayerOne = _gameState.State.PlayerOne,
+            PlayerTwo = _gameState.State.PlayerTwo,
+            CurrentFen = _gameState.State.Board.CurrentFen
+        }));
     }
 
     private Player GetPlayer(Guid userId)

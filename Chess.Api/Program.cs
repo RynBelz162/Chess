@@ -2,22 +2,30 @@
 using Chess.Api.Hubs;
 using Serilog;
 using Orleans.Serialization;
+using Scalar.AspNetCore;
+using StackExchange.Redis;
 
 await Host.CreateDefaultBuilder(args)
     .UseSerilog((ctx, lc) => lc.MinimumLevel.Warning().WriteTo.Console())
     .UseOrleans((ctx, siloBuilder) =>
     {
-        var redis = ctx.Configuration.GetConnectionString("Redis");
+        var redis = ctx.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException("Redis connection string is not configured.");
         Console.WriteLine($"---> using redis connection string: {redis}");
 
         siloBuilder
             .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
             .UseRedisClustering(redis)
-            .AddRedisGrainStorage("chess", options =>
-            {
-                options.DatabaseNumber = 1;
-                options.ConnectionString = redis;
-            })
+            .AddRedisGrainStorage(
+                "chess", 
+                configureOptions: options =>
+                {
+                    options.ConfigurationOptions = new ConfigurationOptions
+                    {
+                        DefaultDatabase = 1,
+                        EndPoints = { redis },
+                        AbortOnConnectFail = false
+                    };
+                })
             .UseSignalR(options =>
             {
                 options.UseFireAndForgetDelivery = true;
@@ -40,6 +48,7 @@ await Host.CreateDefaultBuilder(args)
         { 
             services.AddControllers(); 
             services.AddSignalR();
+            services.AddOpenApi();
         });
 
         webBuilder.Configure((ctx, app) =>
@@ -50,11 +59,15 @@ await Host.CreateDefaultBuilder(args)
             }
 
             app.UseRouting();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<GameHub>("/game");
                 endpoints.MapGet("/", () => "Hello World!");
+                
+                endpoints.MapOpenApi();
+                endpoints.MapScalarApiReference();
             });
         });
     })

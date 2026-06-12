@@ -14,6 +14,8 @@ This project demonstrates building a real-time multiplayer game using Orleans vi
 - **xUnit** - Unit testing framework
 - **Moq** - Mocking framework for unit tests
 - **AwesomeAssertions** - Fluent assertion library for expressive test assertions
+- **Microsoft OpenAPI** - OpenAPI specification generation
+- **Scalar** - Interactive API documentation and testing UI
 
 ## Project Structure
 - **Chess.Api** - Main ASP.NET Core API with Orleans grains, SignalR hubs, and Controllers
@@ -48,6 +50,19 @@ Or use the watch task for live reload:
 ```bash
 dotnet watch run
 ```
+
+### API Documentation
+The Chess API includes OpenAPI specification and interactive documentation:
+
+- **OpenAPI Specification**: Available at `/openapi/v1.json` when running in development mode
+- **Scalar UI**: Interactive API documentation and testing interface available at `/scalar/v1`
+
+To explore the API endpoints and test them directly:
+1. Run the API in development mode (see Local Development section)
+2. Navigate to `http://localhost:5062/scalar/v1` in your browser
+3. Browse all available endpoints, request/response schemas, and try out requests
+
+API documentation is only enabled in development mode for security reasons.
 
 ### Running Tests
 ```bash

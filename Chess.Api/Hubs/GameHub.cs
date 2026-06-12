@@ -50,7 +50,7 @@ public class GameHub : Hub
             .GetGrain<IUserGrain>(playerId)
             .Resign();
 
-        await Clients.Group(gameId.ToString()).SendAsync("Resigned");
+        await Clients.OthersInGroup(gameId.ToString()).SendAsync("Resigned");
     }
 
     public async Task MovePiece(string move, Guid playerId)

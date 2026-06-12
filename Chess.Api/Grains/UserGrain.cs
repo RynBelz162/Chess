@@ -63,8 +63,11 @@ public class UserGrain : Grain, IUserGrain
             throw new ApplicationException("Player is not currently in a game.");
 
         var gameId = await _grainFactory
-            .GetGrain<GameGrain>(currentGameId)
+            .GetGrain<IGrameGrain>(currentGameId)
             .Resign(this.GetPrimaryKey());
+
+        _playerState.State.CurrentGameId = null;
+        await _playerState.WriteStateAsync();
 
         return gameId;
     }

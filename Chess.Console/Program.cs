@@ -1,7 +1,7 @@
-﻿using Chess.Console;
+using Chess.Console;
 using Chess.Console.Actions;
+using Chess.Console.Services;
 using Chess.Console.Setup;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Spectre.Console;
 
@@ -15,27 +15,25 @@ if (string.IsNullOrWhiteSpace(apiUrl))
     throw new Exception("Configuration is not set up correctly");
 }
 
-// Global Variables
-HubConnection connection = null!;
-Guid playerId = Guid.Empty;
-
 var chessTitle = new FigletText("Chess")
     .LeftJustified()
     .Color(Color.Green);
 
 AnsiConsole.Write(chessTitle);
 
+var hubService = DependencyInjection.GetService<HubService>();
+var gameService = DependencyInjection.GetService<GameService>();
+var setupActions = DependencyInjection.GetService<SetupActions>();
+
 await AnsiConsole.Status()
     .StartAsync("Connecting to server...", async ctx =>
     {
-        (connection, playerId) = await SetupService.ConnectToGameHub(apiUrl);
+        await hubService.Connect(apiUrl);
+        await gameService.SetPlayerId(apiUrl);
         await Task.Delay(1000);
     });
 
-connection.On<string>("Error", _ => AnsiConsole.MarkupLine("There was an unexpected issue."));
-
-AnsiConsole.MarkupLine("[bold red]Welcome Player:[/] {0}", playerId.ToString());
-AnsiConsole.WriteLine();
+gameService.Initialize();
 
 var action = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
@@ -46,14 +44,12 @@ var action = AnsiConsole.Prompt(
 switch (action)
 {
     case "New Game":
-        await SetupActions.CreateGame(connection, playerId);
-        await SetupActions.PlayingGame(connection, playerId, isJoining: false);
+        await setupActions.CreateGame();
         break;
 
     case "Join Game":
         var gameId = SetupService.PromptForGameId();
-        await SetupActions.JoinGame(connection, playerId, gameId);
-        await SetupActions.PlayingGame(connection, playerId, isJoining: true);
+        await setupActions.JoinGame(gameId);
         break;
 
     case "Quit":

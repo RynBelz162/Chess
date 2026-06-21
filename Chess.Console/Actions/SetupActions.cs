@@ -1,67 +1,71 @@
-﻿using Chess.Shared.Models.State;
+using Chess.Console.Services;
+using Chess.Shared.Models.State;
 using Microsoft.AspNetCore.SignalR.Client;
 using Spectre.Console;
 
 namespace Chess.Console.Actions;
 
-public static class SetupActions
+public class SetupActions
 {
-    public static async Task CreateGame(HubConnection connection, Guid playerId)
+    private readonly GameService _gameService;
+    private readonly HubService _hubService;
+
+    public SetupActions(GameService gameService, HubService hubService)
     {
-        connection.On<string>("GameCreated", (gameId) => AnsiConsole.MarkupLine("[bold red]New game created:[/] {0}", gameId));
-        await connection.InvokeAsync("Create", playerId);
+        _gameService = gameService;
+        _hubService = hubService;
     }
 
-    public static async Task JoinGame(HubConnection connection, Guid playerId, Guid gameId)
+    public async Task CreateGame()
     {
-        await connection.InvokeAsync("Join", gameId, playerId);
+        _hubService.Connection.On<string>("GameCreated", (gameId) =>
+            AnsiConsole.MarkupLine("[bold red]New game created:[/] {0}", gameId));
+        await _hubService.CreateGame(_gameService.PlayerId);
+        await PlayingGame(isJoining: false);
     }
 
-    public static async Task Resign(HubConnection connection, Guid playerId)
+    public async Task JoinGame(Guid gameId)
     {
-        await connection.InvokeAsync("Resign", playerId);
+        var gameState = await _hubService.JoinGame(gameId, _gameService.PlayerId);
+        await PlayingGame(isJoining: true, initialGameState: gameState);
     }
 
-    public static async Task PlayingGame(HubConnection connection, Guid playerId, bool isJoining)
+    private async Task PlayingGame(bool isJoining, GameStateSnapshot? initialGameState = null)
     {
+        GameStateSnapshot? gameState;
         if (!isJoining)
         {
-            WaitForSecondPlayer(connection);
+            await AnsiConsole.Status()
+                .StartAsync("Waiting for opponent...", async _ =>
+                {
+                    gameState = await _gameService.WaitForGameStart();
+                });
+            gameState = _gameService.CurrentGameState;
+        }
+        else
+        {
+            gameState = initialGameState;
         }
 
-        AnsiConsole.Markup("[bold red]Game is ready![/]");
-        AnsiConsole.WriteLine();
-
-        connection.On("Resigned", () =>
+        var playerResult = gameState!.GetPlayer(_gameService.PlayerId);
+        if (!playerResult.IsSuccess)
         {
-            AnsiConsole.MarkupLine("[bold red]Your opponent has resigned. You win![/]");
+            AnsiConsole.MarkupLine("[bold red]There was an issue starting the game:[/] {0}", playerResult.FailureMessage);
             Environment.Exit(0);
-        });
+        }
+
+        var player = playerResult.Value;
+        AnsiConsole.Markup("[bold red]Game is ready! You are playing as {0}[/]", player.Color);
+        AnsiConsole.WriteLine();
 
         while (true)
         {
             var resign = AnsiConsole.Confirm("Resign?");
             if (resign)
             {
-                await Resign(connection, playerId);
+                await _hubService.Resign(_gameService.PlayerId);
                 Environment.Exit(0);
             }
         }
-    }
-
-    private static void WaitForSecondPlayer(HubConnection connection)
-    {
-        var playerJoined = false;
-
-        connection.On<GameStateSnapshot>("PlayerJoined", (gameState) =>
-        {
-            playerJoined = true;
-        });
-
-        AnsiConsole.Status()
-            .Start("Waiting for opponent...", _ =>
-            {
-                while (!playerJoined) continue;
-            });
     }
 }

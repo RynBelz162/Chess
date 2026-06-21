@@ -1,3 +1,4 @@
+using Chess.Console.Actions;
 using Chess.Console.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +16,9 @@ public static class DependencyInjection
     public static void Initialize()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSingleton<StateService>();
+            .AddSingleton<HubService>()
+            .AddSingleton<GameService>()
+            .AddSingleton<SetupActions>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }

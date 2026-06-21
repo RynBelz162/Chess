@@ -1,4 +1,6 @@
-using System.Text.Json;
+﻿using System.Text.Json;
+using Chess.Shared.Enums;
+using Chess.Shared.Models;
 using Chess.Shared.Models.State;
 using Microsoft.AspNetCore.SignalR.Client;
 using Spectre.Console;
@@ -10,6 +12,7 @@ public class GameService
     private Guid _playerId;
     private GameStateSnapshot? _currentGameState;
     private TaskCompletionSource<GameStateSnapshot>? _gameStartedTcs;
+    private TaskCompletionSource<GameEndResult>? _gameEndTcs;
 
     private readonly HubService _hubService;
 
@@ -48,6 +51,12 @@ public class GameService
         return _gameStartedTcs.Task;
     }
 
+    public Task<GameEndResult> WaitForGameEnd()
+    {
+        _gameEndTcs = new TaskCompletionSource<GameEndResult>();
+        return _gameEndTcs.Task;
+    }
+
     public void EndGame()
     {
         _currentGameState = null;
@@ -61,9 +70,14 @@ public class GameService
         _gameStartedTcs?.TrySetResult(gameState);
     }
 
-    private static void OnResigned()
+    private void OnResigned()
     {
-        AnsiConsole.MarkupLine("[bold red]Your opponent has resigned. You win![/]");
-        Environment.Exit(0);
+        var result = new GameEndResult
+        {
+            Outcome = GameEndOutcome.Winning,
+            Reason = GameEndReason.Resignation
+        };
+
+        _gameEndTcs?.TrySetResult(result);
     }
 }

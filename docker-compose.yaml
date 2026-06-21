@@ -1,6 +1,7 @@
 services:
   api:
     container_name: api
+    pull_policy: build
     build:
       context: .
     ports:

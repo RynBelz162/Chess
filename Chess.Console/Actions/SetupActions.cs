@@ -9,11 +9,13 @@ public class SetupActions
 {
     private readonly GameService _gameService;
     private readonly HubService _hubService;
+    private readonly IBoardRendererService _boardRenderer;
 
-    public SetupActions(GameService gameService, HubService hubService)
+    public SetupActions(GameService gameService, HubService hubService, IBoardRendererService boardRenderer)
     {
         _gameService = gameService;
         _hubService = hubService;
+        _boardRenderer = boardRenderer;
     }
 
     public async Task CreateGame()
@@ -55,8 +57,9 @@ public class SetupActions
         }
 
         var player = playerResult.Value;
-        AnsiConsole.Markup("[bold red]Game is ready! You are playing as {0}[/]", player.Color);
-        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"[bold red]Game is ready! You are playing as {player.Color}[/]");
+
+        _boardRenderer.Render(gameState.CurrentFen, player.Color);
 
         while (true)
         {

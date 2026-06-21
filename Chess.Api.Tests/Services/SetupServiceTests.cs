@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Chess.Api.Services;
 using Chess.Shared.Constants;
@@ -28,6 +28,14 @@ public class SetupServiceTests
     }
 
     [Fact]
+    public void InitializeBoard_StartingFen_IsCorrectStandardChessPosition()
+    {
+        var board = _setupService.InitializeBoard();
+
+        board.CurrentFen.Should().Be("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    }
+
+    [Fact]
     public void InitializeBoard_ShouldReturnFreshBoard()
     {
         var board = _setupService.InitializeBoard();
@@ -42,7 +50,7 @@ public class SetupServiceTests
     private static Board ExpectedDefaultBoard =>
         new()
         {
-            CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQKNR",
+            CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
             Squares = ExpectedSquares,
             Pieces = ExpectedPieces
         };
@@ -80,8 +88,8 @@ public class SetupServiceTests
             { "D4", new Square() },
             { "D5", new Square() },
             { "D6", new Square() },
-            { "D7", new Square() { Piece = new Queen(ChessFile.D, 7) { Color = ChessColor.Black} }},
-            { "D8", new Square() { Piece = new Pawn(ChessFile.D, 8) { Color = ChessColor.Black} }},
+            { "D7", new Square() { Piece = new Pawn(ChessFile.D, 7) { Color = ChessColor.Black} }},
+            { "D8", new Square() { Piece = new Queen(ChessFile.D, 8) { Color = ChessColor.Black} }},
             { "E1", new Square() { Piece = new King(ChessFile.E, 1) { Color = ChessColor.White} }},
             { "E2", new Square() { Piece = new Pawn(ChessFile.E, 2) { Color = ChessColor.White} }},
             { "E3", new Square() },
@@ -105,7 +113,7 @@ public class SetupServiceTests
             { "G5", new Square() },
             { "G6", new Square() },
             { "G7", new Square() { Piece = new Pawn(ChessFile.G, 7) { Color = ChessColor.Black} }},
-            { "G8", new Square() { Piece = new Bishop(ChessFile.G, 8) { Color = ChessColor.Black} }},
+            { "G8", new Square() { Piece = new Knight(ChessFile.G, 8) { Color = ChessColor.Black} }},
             { "H1", new Square() { Piece = new Rook(ChessFile.H, 1) { Color = ChessColor.White} }},
             { "H2", new Square() { Piece = new Pawn(ChessFile.H, 2) { Color = ChessColor.White} }},
             { "H3", new Square() },

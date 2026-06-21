@@ -1,6 +1,7 @@
 using Chess.Console.Actions;
 using Chess.Console.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 
 namespace Chess.Console;
 
@@ -16,6 +17,8 @@ public static class DependencyInjection
     public static void Initialize()
     {
         var serviceCollection = new ServiceCollection()
+            .AddSingleton<IAnsiConsole>(AnsiConsole.Console)
+            .AddSingleton<IBoardRendererService, BoardRendererService>()
             .AddSingleton<HubService>()
             .AddSingleton<GameService>()
             .AddSingleton<SetupActions>();

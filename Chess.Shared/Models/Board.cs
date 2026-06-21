@@ -8,7 +8,7 @@ public class Board
     private const int NumberOfRanks = 8;
 
     // https://www.chessprogramming.org/Forsyth-Edwards_Notation
-    private const string StartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQKNR";
+    private const string StartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     public string CurrentFen { get; set; } = StartingFen;
     
     public Dictionary<string, Square> Squares { get; set; } = [];

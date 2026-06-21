@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Shared", "Chess.Shared\Chess.Shared.csproj", "{8B229613-5297-4615-86A2-6F6ABC16495D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Api.Tests", "Chess.Api.Tests\Chess.Api.Tests.csproj", "{92CCD123-D88C-410E-884B-761232B3A9C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Console.Tests", "Chess.Console.Tests\Chess.Console.Tests.csproj", "{A1D79CB9-F51A-40A0-8E3A-04F61F48C8D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,10 @@ Global
 		{92CCD123-D88C-410E-884B-761232B3A9C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92CCD123-D88C-410E-884B-761232B3A9C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92CCD123-D88C-410E-884B-761232B3A9C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1D79CB9-F51A-40A0-8E3A-04F61F48C8D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D79CB9-F51A-40A0-8E3A-04F61F48C8D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1D79CB9-F51A-40A0-8E3A-04F61F48C8D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D79CB9-F51A-40A0-8E3A-04F61F48C8D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

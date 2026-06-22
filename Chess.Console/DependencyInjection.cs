@@ -21,6 +21,7 @@ public static class DependencyInjection
             .AddSingleton<IBoardRendererService, BoardRendererService>()
             .AddSingleton<HubService>()
             .AddSingleton<GameService>()
+            .AddSingleton<GameActions>()
             .AddSingleton<SetupActions>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();

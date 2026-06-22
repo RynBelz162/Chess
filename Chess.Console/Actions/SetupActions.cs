@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
 using Chess.Console.Services;
-using Chess.Shared.Models;
 using Chess.Shared.Models.State;
 using Microsoft.AspNetCore.SignalR.Client;
 using Spectre.Console;
@@ -11,13 +9,13 @@ public class SetupActions
 {
     private readonly GameService _gameService;
     private readonly HubService _hubService;
-    private readonly IBoardRendererService _boardRenderer;
+    private readonly GameActions _gameActions;
 
-    public SetupActions(GameService gameService, HubService hubService, IBoardRendererService boardRenderer)
+    public SetupActions(GameService gameService, HubService hubService, GameActions gameActions)
     {
         _gameService = gameService;
         _hubService = hubService;
-        _boardRenderer = boardRenderer;
+        _gameActions = gameActions;
     }
 
     public async Task CreateGame()
@@ -31,121 +29,38 @@ public class SetupActions
         await _hubService.CreateGame(_gameService.PlayerId);
 
         var gameId = await gameIdTcs.Task;
-        await PlayingGame(isJoining: false, gameId: gameId);
-    }
+        var gameState = await WaitForOpponent(gameId);
 
-    private static void CopyToClipboard(string text)
-    {
-        ProcessStartInfo psi;
-        if (OperatingSystem.IsMacOS())
-        {
-            psi = new ProcessStartInfo("pbcopy") { RedirectStandardInput = true, UseShellExecute = false };
-        }
-        else if (OperatingSystem.IsWindows())
-        {
-            psi = new ProcessStartInfo("clip") { RedirectStandardInput = true, UseShellExecute = false };
-        }
-        else
-        {
-            psi = new ProcessStartInfo("xclip", "-selection clipboard") { RedirectStandardInput = true, UseShellExecute = false };
-        }
-
-        using var proc = Process.Start(psi)!;
-        proc.StandardInput.Write(text);
-        proc.StandardInput.Close();
-        proc.WaitForExit();
+        await _gameActions.Play(gameState);
     }
 
     public async Task JoinGame(Guid gameId)
     {
         var gameState = await _hubService.JoinGame(gameId, _gameService.PlayerId);
-        await PlayingGame(isJoining: true, initialGameState: gameState);
+        await _gameActions.Play(gameState!);
     }
 
-    private async Task PlayingGame(bool isJoining, GameStateSnapshot? initialGameState = null, string? gameId = null)
+    private async Task<GameStateSnapshot> WaitForOpponent(string gameId)
     {
-        GameStateSnapshot? gameState;
-        if (!isJoining)
+        AnsiConsole.MarkupLine("Waiting for opponent... Press [bold]C[/] to copy game ID");
+
+        var gameStartTask = _gameService.WaitForGameStart();
+        using var cts = new CancellationTokenSource();
+
+        var listener = ConsoleKeyListener.ListenUntil(key =>
         {
-            AnsiConsole.MarkupLine("Waiting for opponent... Press [bold]C[/] to copy game ID");
-
-            var gameStartTask = _gameService.WaitForGameStart();
-            using var cts = new CancellationTokenSource();
-
-            _ = Task.Run(() =>
+            if (key == ConsoleKey.C)
             {
-                while (!cts.Token.IsCancellationRequested)
-                {
-                    if (System.Console.KeyAvailable)
-                    {
-                        var key = System.Console.ReadKey(intercept: true);
-                        if (key.Key == ConsoleKey.C && gameId is not null)
-                        {
-                            CopyToClipboard(gameId);
-                            AnsiConsole.MarkupLine("[bold green]Game ID copied![/]");
-                        }
-                    }
-                    Thread.Sleep(50);
-                }
-            }, cts.Token);
-
-            await gameStartTask;
-            cts.Cancel();
-            gameState = _gameService.CurrentGameState;
-        }
-        else
-        {
-            gameState = initialGameState;
-        }
-
-        var playerResult = gameState!.GetPlayer(_gameService.PlayerId);
-        if (!playerResult.IsSuccess)
-        {
-            AnsiConsole.MarkupLine("[bold red]There was an issue starting the game:[/] {0}", playerResult.FailureMessage);
-            Environment.Exit(0);
-        }
-
-        var player = playerResult.Value;
-        AnsiConsole.MarkupLine($"[bold red]Game is ready! You are playing as {player.Color}[/]");
-
-        _boardRenderer.Render(gameState.CurrentFen, player.Color);
-        AnsiConsole.MarkupLine("Press [bold]R[/] to resign.");
-
-        var gameEndTask = _gameService.WaitForGameEnd();
-        var playerResignedTcs = new TaskCompletionSource();
-        using var gameCts = new CancellationTokenSource();
-
-        _ = Task.Run(() =>
-        {
-            while (!gameCts.Token.IsCancellationRequested)
-            {
-                if (System.Console.KeyAvailable)
-                {
-                    var key = System.Console.ReadKey(intercept: true);
-                    if (key.Key == ConsoleKey.R)
-                    {
-                        playerResignedTcs.TrySetResult();
-                        break;
-                    }
-                }
-                Thread.Sleep(50);
+                ClipboardService.Copy(gameId);
+                AnsiConsole.MarkupLine("[bold green]Game ID copied![/]");
             }
-        }, gameCts.Token);
 
-        var completed = await Task.WhenAny(gameEndTask, playerResignedTcs.Task);
-        gameCts.Cancel();
+            return false;
+        }, cts.Token);
 
-        if (completed == gameEndTask)
-        {
-            var result = gameEndTask.Result;
-            AnsiConsole.MarkupLine($"[bold red]{GameEndResult.FormatGameEnd(result)}[/]");
-        }
-        else
-        {
-            await _hubService.Resign(_gameService.PlayerId);
-            AnsiConsole.MarkupLine("[bold red]You resigned.[/]");
-        }
+        await gameStartTask;
+        cts.Cancel();
 
-        Environment.Exit(0);
+        return _gameService.CurrentGameState!;
     }
 }

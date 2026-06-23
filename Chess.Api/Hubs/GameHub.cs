@@ -57,11 +57,29 @@ public class GameHub : Hub
 
     public async Task MovePiece(string move, Guid playerId)
     {
-        var gameId = await _grainFactory
+        var moveResult = await _grainFactory
             .GetGrain<IUserGrain>(playerId)
             .Move(move);
 
-        await Clients.Group(gameId.ToString()).SendAsync("Moved");
+        if (!moveResult.IsSuccess)
+        {
+            await Clients.Caller.SendAsync("MoveRejected", moveResult.FailureMessage);
+            return;
+        }
+
+        var gameId = moveResult.Value;
+
+        var gameSnapshot = await _grainFactory
+            .GetGrain<IGrameGrain>(gameId)
+            .GetGameSnapshot();
+
+        if (!gameSnapshot.IsSuccess)
+        {
+            await Clients.Caller.SendAsync("MoveRejected", gameSnapshot.FailureMessage);
+            return;
+        }
+
+        await Clients.Group(gameId.ToString()).SendAsync("Moved", gameSnapshot.Value);
     }
 
     private async Task AddToGroup(Guid gameId) =>

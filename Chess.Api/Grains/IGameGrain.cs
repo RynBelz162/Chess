@@ -9,5 +9,6 @@ public interface IGrameGrain : IGrainWithGuidKey
     Task Create(Guid userId);
     Task Join(Guid userId);
     Task<Guid> Resign(Guid userId);
+    Task<Result> Move(string move, Guid userId);
     Task<Result<GameStateSnapshot>> GetGameSnapshot();
 }

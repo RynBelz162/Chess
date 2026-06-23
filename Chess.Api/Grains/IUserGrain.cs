@@ -1,4 +1,6 @@
-﻿namespace Chess.Api.Grains;
+﻿using Chess.Shared.Models;
+
+namespace Chess.Api.Grains;
 
 public interface IUserGrain : IGrainWithGuidKey
 {
@@ -6,5 +8,5 @@ public interface IUserGrain : IGrainWithGuidKey
     Task<Guid> CreateGame();
     Task JoinGame(Guid gameId);
     Task<Guid> Resign();
-    Task<Guid> Move(string move);
+    Task<Result<Guid>> Move(string move);
 }

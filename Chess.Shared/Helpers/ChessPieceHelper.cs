@@ -16,6 +16,17 @@ public static class ChessPieceHelper
             _ => throw new ArgumentException($"{identifier} is not a valid piece identifier.")
         };
 
+    public static char IdentifierFromType(Type pieceType) => pieceType switch
+    {
+        Type t when t == typeof(Pawn) => Pawn.Identifier,
+        Type t when t == typeof(Rook) => Rook.Identifier,
+        Type t when t == typeof(Bishop) => Bishop.Identifier,
+        Type t when t == typeof(Knight) => Knight.Identifier,
+        Type t when t == typeof(Queen) => Queen.Identifier,
+        Type t when t == typeof(King) => King.Identifier,
+        _ => throw new ArgumentException($"{pieceType.Name} is not a valid piece type.")
+    };
+
     public static bool IsPieceIdentifier(char character) =>
         char.ToUpper(character) switch
         {

@@ -26,11 +26,19 @@ public abstract class Piece(ChessFile chessFile, int rank)
             throw new ApplicationException("Cannot move piece to target square.");
         }
 
+        // Capture whatever currently sits on the target square.
+        if (targetSquare.Piece is not null)
+        {
+            targetSquare.Piece.IsCaptured = true;
+        }
+
+        // Vacate the square the piece is moving from.
+        board.Squares[CurrentSquare].Piece = null;
         targetSquare.Piece = this;
 
-        // Split the target square
+        // Split the target square (e.g. "E4" -> file 'E', rank 4)
         CurrentFile = (ChessFile)square[0];
-        CurrentRank = square[1];
+        CurrentRank = square[1] - '0';
 
         AvailableMoves = RecalculateAvailableMoves(board);
         NumberOfMoves++;

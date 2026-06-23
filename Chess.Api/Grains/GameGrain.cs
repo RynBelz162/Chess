@@ -4,6 +4,7 @@ using Orleans.Providers;
 using Orleans.Runtime;
 using Chess.Shared.Models.State;
 using Chess.Shared.Enums;
+using Chess.Shared.Constants;
 
 namespace Chess.Api.Grains;
 
@@ -55,8 +56,11 @@ public class GameGrain : Grain, IGrameGrain
         {
             UserId = userId,
             Color = _setupService.GetOppositeColor(_gameState.State.PlayerOne.Color),
-            IsCurrentTurn = false,
         };
+
+        // White always moves first, regardless of who created the game.
+        _gameState.State.PlayerOne.IsCurrentTurn = _gameState.State.PlayerOne.Color == ChessColor.White;
+        _gameState.State.PlayerTwo.IsCurrentTurn = _gameState.State.PlayerTwo.Color == ChessColor.White;
 
         await _gameState.WriteStateAsync();
     }
@@ -78,23 +82,67 @@ public class GameGrain : Grain, IGrameGrain
         return _gameState.State.GameId;
     }
 
-    public Task Move(string move, Guid userId)
+    public async Task<Result> Move(string move, Guid userId)
     {
-        var player = GetPlayer(userId);
+        if (_gameState.State.Status != GameStatus.InProgress)
+        {
+            return Result.Fail("The game is not in progress.");
+        }
+
+        var player = GetPlayerOrDefault(userId);
+        if (player is null)
+        {
+            return Result.Fail("Player not found in game.");
+        }
+
         if (!player.IsCurrentTurn)
         {
-            throw new ApplicationException("Not your turn yet!");
+            return Result.Fail("Not your turn yet!");
         }
 
-        var request = _algebraicNotationService.GetRequest(move, _gameState.State.Board);
-        var piece = _gameState.State.Board.PieceOnSquare(request.PieceSquare);
+        var board = _gameState.State.Board;
+
+        var request = _algebraicNotationService.GetRequest(move, board);
+        if (!request.IsValid)
+        {
+            return Result.Fail(request.ErrorMessage);
+        }
+
+        var piece = board.PieceOnSquare(request.PieceSquare);
         if (piece is null)
         {
-            throw new ApplicationException("Piece not available to move");
+            return Result.Fail("Piece not available to move.");
         }
 
-        piece.Move(request.TargetSquare, _gameState.State.Board);
-        return Task.CompletedTask;
+        if (piece.Color != player.Color)
+        {
+            return Result.Fail("You can only move your own pieces.");
+        }
+
+        try
+        {
+            piece.Move(request.TargetSquare, board);
+        }
+        catch (ApplicationException ex)
+        {
+            return Result.Fail(ex.Message);
+        }
+
+        // Recalculate every remaining piece's moves so the next turn validates correctly.
+        foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
+        {
+            remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
+        }
+
+        board.UpdateFen();
+
+        // Hand the turn to the opponent.
+        _gameState.State.PlayerOne.IsCurrentTurn = !_gameState.State.PlayerOne.IsCurrentTurn;
+        _gameState.State.PlayerTwo!.IsCurrentTurn = !_gameState.State.PlayerTwo.IsCurrentTurn;
+
+        await _gameState.WriteStateAsync();
+
+        return Result.Ok();
     }
 
     public Task<Result<GameStateSnapshot>> GetGameSnapshot()
@@ -129,5 +177,20 @@ public class GameGrain : Grain, IGrameGrain
         }
 
         throw new ApplicationException("Player not found in game.");
+    }
+
+    private Player? GetPlayerOrDefault(Guid userId)
+    {
+        if (_gameState.State.PlayerOne.UserId == userId)
+        {
+            return _gameState.State.PlayerOne;
+        }
+
+        if (_gameState.State.PlayerTwo?.UserId == userId)
+        {
+            return _gameState.State.PlayerTwo;
+        }
+
+        return null;
     }
 }

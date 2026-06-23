@@ -13,6 +13,8 @@ public class GameService
     private GameStateSnapshot? _currentGameState;
     private TaskCompletionSource<GameStateSnapshot>? _gameStartedTcs;
     private TaskCompletionSource<GameEndResult>? _gameEndTcs;
+    private TaskCompletionSource<GameStateSnapshot>? _movedTcs;
+    private TaskCompletionSource<string>? _moveRejectedTcs;
 
     private readonly HubService _hubService;
 
@@ -43,6 +45,8 @@ public class GameService
     {
         _hubService.Connection.On<GameStateSnapshot>("GameStarted", OnGameStarted);
         _hubService.Connection.On("Resigned", OnResigned);
+        _hubService.Connection.On<GameStateSnapshot>("Moved", OnMoved);
+        _hubService.Connection.On<string>("MoveRejected", OnMoveRejected);
     }
 
     public Task<GameStateSnapshot> WaitForGameStart()
@@ -57,17 +61,42 @@ public class GameService
         return _gameEndTcs.Task;
     }
 
+    public Task<GameStateSnapshot> WaitForMove()
+    {
+        _movedTcs = new TaskCompletionSource<GameStateSnapshot>();
+        return _movedTcs.Task;
+    }
+
+    public Task<string> WaitForMoveRejected()
+    {
+        _moveRejectedTcs = new TaskCompletionSource<string>();
+        return _moveRejectedTcs.Task;
+    }
+
     public void EndGame()
     {
         _currentGameState = null;
         _hubService.Connection.Remove("GameStarted");
         _hubService.Connection.Remove("Resigned");
+        _hubService.Connection.Remove("Moved");
+        _hubService.Connection.Remove("MoveRejected");
     }
 
     private void OnGameStarted(GameStateSnapshot gameState)
     {
         _currentGameState = gameState;
         _gameStartedTcs?.TrySetResult(gameState);
+    }
+
+    private void OnMoved(GameStateSnapshot gameState)
+    {
+        _currentGameState = gameState;
+        _movedTcs?.TrySetResult(gameState);
+    }
+
+    private void OnMoveRejected(string reason)
+    {
+        _moveRejectedTcs?.TrySetResult(reason);
     }
 
     private void OnResigned()

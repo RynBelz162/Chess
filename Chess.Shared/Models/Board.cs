@@ -1,4 +1,6 @@
+using System.Text;
 using Chess.Shared.Constants;
+using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
 
 namespace Chess.Shared.Models;
@@ -33,6 +35,49 @@ public class Board
 
     public Piece? PieceOnSquare(string targetSquare) =>
         Squares[targetSquare].Piece;
+
+    // Rebuilds CurrentFen (piece placement only) from the current square occupancy.
+    public void UpdateFen()
+    {
+        var sb = new StringBuilder();
+
+        for (int rank = NumberOfRanks; rank >= 1; rank--)
+        {
+            var emptyCount = 0;
+            foreach (char file in ChessFileHelper.OrderedFiles)
+            {
+                var piece = Squares[$"{file}{rank}"].Piece;
+                if (piece is null)
+                {
+                    emptyCount++;
+                    continue;
+                }
+
+                if (emptyCount > 0)
+                {
+                    sb.Append(emptyCount);
+                    emptyCount = 0;
+                }
+
+                var identifier = ChessPieceHelper.IdentifierFromType(piece.GetType());
+                sb.Append(piece.Color == ChessColor.White
+                    ? char.ToUpperInvariant(identifier)
+                    : char.ToLowerInvariant(identifier));
+            }
+
+            if (emptyCount > 0)
+            {
+                sb.Append(emptyCount);
+            }
+
+            if (rank > 1)
+            {
+                sb.Append('/');
+            }
+        }
+
+        CurrentFen = sb.ToString();
+    }
 
     public List<Piece> PieceWithAvailableMove(Type pieceType, string targetMove) =>
         Pieces

@@ -27,48 +27,84 @@ public class GameActions
             Environment.Exit(0);
         }
 
-        var player = playerResult.Value;
-        AnsiConsole.MarkupLine($"[bold red]Game is ready! You are playing as {player.Color}[/]");
+        var color = playerResult.Value.Color;
+        AnsiConsole.MarkupLine($"[bold red]Game is ready! You are playing as {color}[/]");
+        AnsiConsole.MarkupLine("Enter moves in algebraic notation (e.g. [bold]e4[/], [bold]Bb5[/]), or type [bold]resign[/].");
 
-        _boardRenderer.Render(gameState.CurrentFen, player.Color);
-        AnsiConsole.MarkupLine("Press [bold]R[/] to resign.");
+        _boardRenderer.Render(gameState.CurrentFen, color);
 
-        var resigned = await WaitForGameEndOrResign();
-        if (resigned)
-        {
-            await _hubService.Resign(_gameService.PlayerId);
-            AnsiConsole.MarkupLine("[bold red]You resigned.[/]");
-        }
-
-        Environment.Exit(0);
-    }
-
-    private async Task<bool> WaitForGameEndOrResign()
-    {
+        // A single game-end task spans the whole game (e.g. opponent resignation).
         var gameEndTask = _gameService.WaitForGameEnd();
-        var resignedTcs = new TaskCompletionSource();
-        using var cts = new CancellationTokenSource();
+        var current = gameState;
 
-        var listener = ConsoleKeyListener.ListenUntil(key =>
+        while (true)
         {
-            if (key != ConsoleKey.R)
+            var isMyTurn = current.GetPlayer(_gameService.PlayerId).Value.IsCurrentTurn;
+
+            var next = isMyTurn
+                ? await HandleMyTurn(gameEndTask)
+                : await WaitForOpponent(gameEndTask);
+
+            // A null result means the game has ended.
+            if (next is null)
             {
-                return false;
+                Environment.Exit(0);
             }
 
-            resignedTcs.TrySetResult();
-            return true;
-        }, cts.Token);
+            current = next;
+            _boardRenderer.Render(current.CurrentFen, color);
+        }
+    }
 
-        var completed = await Task.WhenAny(gameEndTask, resignedTcs.Task);
-        cts.Cancel();
+    private async Task<GameStateSnapshot?> HandleMyTurn(Task<GameEndResult> gameEndTask)
+    {
+        while (true)
+        {
+            var input = AnsiConsole.Ask<string>("[bold green]Your move:[/]").Trim();
+
+            if (input.Equals("resign", StringComparison.OrdinalIgnoreCase))
+            {
+                await _hubService.Resign(_gameService.PlayerId);
+                AnsiConsole.MarkupLine("[bold red]You resigned.[/]");
+                return null;
+            }
+
+            var movedTask = _gameService.WaitForMove();
+            var rejectedTask = _gameService.WaitForMoveRejected();
+
+            await _hubService.MovePiece(input, _gameService.PlayerId);
+
+            var completed = await Task.WhenAny(movedTask, rejectedTask, gameEndTask);
+
+            if (completed == gameEndTask)
+            {
+                AnsiConsole.MarkupLine($"[bold red]{GameEndResult.FormatGameEnd(gameEndTask.Result)}[/]");
+                return null;
+            }
+
+            if (completed == rejectedTask)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Invalid move:[/] {rejectedTask.Result}");
+                continue;
+            }
+
+            return movedTask.Result;
+        }
+    }
+
+    private async Task<GameStateSnapshot?> WaitForOpponent(Task<GameEndResult> gameEndTask)
+    {
+        AnsiConsole.MarkupLine("[dim]Waiting for your opponent's move...[/]");
+
+        var movedTask = _gameService.WaitForMove();
+        var completed = await Task.WhenAny(movedTask, gameEndTask);
 
         if (completed == gameEndTask)
         {
             AnsiConsole.MarkupLine($"[bold red]{GameEndResult.FormatGameEnd(gameEndTask.Result)}[/]");
-            return false;
+            return null;
         }
 
-        return true;
+        return movedTask.Result;
     }
 }

@@ -29,18 +29,19 @@ public class SetupActions
         await _hubService.CreateGame(_gameService.PlayerId);
 
         var gameId = await gameIdTcs.Task;
-        var gameState = await WaitForOpponent(gameId);
+        await WaitForOpponent(gameId);
 
-        await _gameActions.Play(gameState);
+        await _gameActions.Play();
     }
 
     public async Task JoinGame(Guid gameId)
     {
         var gameState = await _hubService.JoinGame(gameId, _gameService.PlayerId);
-        await _gameActions.Play(gameState!);
+        _gameService.SetCurrentGameState(gameState!);
+        await _gameActions.Play();
     }
 
-    private async Task<GameStateSnapshot> WaitForOpponent(string gameId)
+    private async Task WaitForOpponent(string gameId)
     {
         AnsiConsole.MarkupLine("Waiting for opponent... Press [bold]C[/] to copy game ID");
 
@@ -60,7 +61,5 @@ public class SetupActions
 
         await gameStartTask;
         cts.Cancel();
-
-        return _gameService.CurrentGameState!;
     }
 }

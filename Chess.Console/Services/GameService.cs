@@ -11,15 +11,34 @@ public class GameService
 {
     private Guid _playerId;
     private GameStateSnapshot? _currentGameState;
-    private TaskCompletionSource<GameStateSnapshot>? _gameStartedTcs;
+    private TaskCompletionSource? _gameStartedTcs;
     private TaskCompletionSource<GameEndResult>? _gameEndTcs;
-    private TaskCompletionSource<GameStateSnapshot>? _movedTcs;
+    private TaskCompletionSource? _movedTcs;
     private TaskCompletionSource<string>? _moveRejectedTcs;
 
     private readonly HubService _hubService;
 
     public Guid PlayerId => _playerId;
-    public GameStateSnapshot? CurrentGameState => _currentGameState;
+
+    /// <summary>
+    /// The single point of access for the current game state. Always returns the
+    /// most recently received snapshot, ensuring callers never act on stale state.
+    /// </summary>
+    public GameStateSnapshot GetCurrentGameState()
+    {
+        if (_currentGameState is null)
+        {
+            throw new InvalidOperationException("No game is currently in progress.");
+        }
+
+        return _currentGameState;
+    }
+
+    /// <summary>
+    /// Seeds the current game state from a source that doesn't flow through the hub
+    /// events (e.g. the response to joining a game).
+    /// </summary>
+    public void SetCurrentGameState(GameStateSnapshot gameState) => _currentGameState = gameState;
 
     public GameService(HubService hubService)
     {
@@ -49,9 +68,9 @@ public class GameService
         _hubService.Connection.On<string>("MoveRejected", OnMoveRejected);
     }
 
-    public Task<GameStateSnapshot> WaitForGameStart()
+    public Task WaitForGameStart()
     {
-        _gameStartedTcs = new TaskCompletionSource<GameStateSnapshot>();
+        _gameStartedTcs = new TaskCompletionSource();
         return _gameStartedTcs.Task;
     }
 
@@ -61,9 +80,9 @@ public class GameService
         return _gameEndTcs.Task;
     }
 
-    public Task<GameStateSnapshot> WaitForMove()
+    public Task WaitForMove()
     {
-        _movedTcs = new TaskCompletionSource<GameStateSnapshot>();
+        _movedTcs = new TaskCompletionSource();
         return _movedTcs.Task;
     }
 
@@ -85,13 +104,13 @@ public class GameService
     private void OnGameStarted(GameStateSnapshot gameState)
     {
         _currentGameState = gameState;
-        _gameStartedTcs?.TrySetResult(gameState);
+        _gameStartedTcs?.TrySetResult();
     }
 
     private void OnMoved(GameStateSnapshot gameState)
     {
         _currentGameState = gameState;
-        _movedTcs?.TrySetResult(gameState);
+        _movedTcs?.TrySetResult();
     }
 
     private void OnMoveRejected(string reason)

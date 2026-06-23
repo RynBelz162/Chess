@@ -26,10 +26,11 @@ public abstract class Piece(ChessFile chessFile, int rank)
             throw new ApplicationException("Cannot move piece to target square.");
         }
 
-        // Capture whatever currently sits on the target square.
+        // Capture whatever currently sits on the target square and take it off the board.
         if (targetSquare.Piece is not null)
         {
             targetSquare.Piece.IsCaptured = true;
+            board.Pieces.Remove(targetSquare.Piece);
         }
 
         // Vacate the square the piece is moving from.

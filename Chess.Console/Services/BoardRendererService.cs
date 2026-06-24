@@ -1,10 +1,12 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Spectre.Console;
 
 namespace Chess.Console.Services;
 
 public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
 {
+    private const string BoardLineSeparator = "  [dim]+---+---+---+---+---+---+---+---+[/]";
+
     private static readonly Dictionary<char, string> PieceDisplay = new()
     {
         { 'K', "[bold white]K[/]" },
@@ -23,31 +25,30 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
 
     public void Render(string fen, ChessColor perspective)
     {
+        var isPlayingWhite = perspective == ChessColor.White;
+
         var positionPart = fen.Split(' ')[0];
         var ranks = positionPart.Split('/');
 
         var board = ParseRanks(ranks);
 
         var files = "abcdefgh";
-        var rankNumbers = Enumerable.Range(1, 8).ToArray();
 
-        IEnumerable<int> rankOrder = perspective == ChessColor.White
-            ? rankNumbers.Reverse()
-            : rankNumbers;
+        var rankOrder = isPlayingWhite
+            ? [.. Enumerable.Range(1, 8).Reverse()]
+            : Enumerable.Range(1, 8).ToList();
 
-        IEnumerable<int> fileOrder = perspective == ChessColor.White
-            ? Enumerable.Range(0, 8)
-            : Enumerable.Range(0, 8).Reverse();
+        var fileOrder = isPlayingWhite
+            ? [.. Enumerable.Range(0, 8)]
+            : Enumerable.Range(0, 8).Reverse().ToList();
 
-        var separator = "  [dim]+---+---+---+---+---+---+---+---+[/]";
+        var opponentsCapturedPieces = CapturedMarkup(board, capturedColorWhite: isPlayingWhite);
+        var playersCapturedPieces = CapturedMarkup(board, capturedColorWhite: !isPlayingWhite);
 
-        console.MarkupLine(separator);
-        foreach (var rank in rankOrder)
+        console.MarkupLine(BoardLineSeparator);
+        for (int rankIdx = 0; rankIdx < rankOrder.Count; rankIdx++)
         {
-            var row = board[rank - 1];
-            var cells = string.Join("[dim]|[/]", fileOrder.Select(f => $" {CellMarkup(row[f])} "));
-            console.MarkupLine($"[dim]{rank}[/] [dim]|[/]{cells}[dim]|[/]");
-            console.MarkupLine(separator);
+            PrintRow(rankOrder, fileOrder, board, rankIdx, opponentsCapturedPieces, playersCapturedPieces);
         }
 
         var fileLabels = string.Join("   ", fileOrder.Select(i => files[i]));
@@ -74,6 +75,72 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
         return board;
     }
 
+    // Full complement of each piece type in a standard set.
+    private static readonly (char Type, int Count)[] FullSet =
+    [
+        ('Q', 1), ('R', 2), ('B', 2), ('N', 2), ('P', 8),
+    ];
+
+    internal static string CapturedMarkup(char[][] board, bool capturedColorWhite)
+    {
+        var onBoard = new Dictionary<char, int>();
+        foreach (var row in board)
+        {
+            foreach (var piece in row)
+            {
+                if (piece == '\0')
+                    continue;
+                bool isWhite = char.IsUpper(piece);
+                if (isWhite != capturedColorWhite)
+                    continue;
+                var type = char.ToUpper(piece);
+                onBoard[type] = onBoard.GetValueOrDefault(type) + 1;
+            }
+        }
+
+        var cells = new List<string>();
+        foreach (var (type, count) in FullSet)
+        {
+            var missing = count - onBoard.GetValueOrDefault(type);
+            for (int i = 0; i < missing; i++)
+            {
+                var piece = capturedColorWhite ? type : char.ToLower(type);
+                cells.Add(CellMarkup(piece));
+            }
+        }
+
+        return string.Join(" ", cells);
+    }
+
     private static string CellMarkup(char piece) =>
         piece == '\0' ? "[dim]·[/]" : PieceDisplay.GetValueOrDefault(piece, piece.ToString());
+
+    private void PrintRow(
+        List<int> rankOrder, 
+        List<int> fileOrder, 
+        char[][] board, 
+        int rankIdx, 
+        string? opponentsCapturedPieces, 
+        string? playersCapturedPieces)
+    {
+        var rank = rankOrder[rankIdx];
+        var row = board[rank - 1];
+        var cells = string.Join("[dim]|[/]", fileOrder.Select(f => $" {CellMarkup(row[f])} "));
+
+        string captured = "";
+
+        // if the first rank, show the opponent's captured pieces;
+        if (rankIdx == 0)
+        {
+            captured += $"   {opponentsCapturedPieces}";
+        }
+        // if the last rank, show the player's captured pieces
+        else if (rankIdx == rankOrder.Count - 1)
+        {
+            captured = $"   {playersCapturedPieces}";
+        }
+
+        console.MarkupLine($"[dim]{rank}[/] [dim]|[/]{cells}[dim]|[/]{captured}");
+        console.MarkupLine(BoardLineSeparator);
+    }
 }

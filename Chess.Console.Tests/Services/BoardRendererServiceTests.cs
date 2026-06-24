@@ -132,6 +132,33 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
+    public void Render_WhitePerspective_PlayerCapturesOnBottomRow()
+    {
+        var (service, console) = CreateService();
+        // White is missing a knight and a pawn -> black captured them (shown top).
+        // Black is missing a queen -> white captured it (shown bottom).
+        var fen = "rnb1kbnr/pppppppp/8/8/8/8/PPPPPP1P/RNBQKB1R";
+
+        service.Render(fen, ChessColor.White);
+
+        var lines = GetOutputLines(console);
+        lines[15].Should().Contain("q");   // white player's capture
+        lines[1].Should().Contain("N").And.Contain("P"); // opponent's captures
+    }
+
+    [Fact]
+    public void Render_StartingPosition_NoCapturedPieces()
+    {
+        var (service, console) = CreateService();
+
+        service.Render(StartingFen, ChessColor.White);
+
+        var lines = GetOutputLines(console);
+        lines[1].Should().Be("8 | r | n | b | q | k | b | n | r |");
+        lines[15].Should().Be("1 | R | N | B | Q | K | B | N | R |");
+    }
+
+    [Fact]
     public void Render_OutputHas18Lines()
     {
         var (service, console) = CreateService();
@@ -165,7 +192,9 @@ public class BoardRendererServiceTests
         var lines = GetOutputLines(console);
         foreach (int i in new[] { 1, 3, 5, 7, 9, 11, 13, 15 })
         {
-            lines[i].Should().Contain("·").And.NotContainAny("r", "n", "b", "q", "k", "p", "R", "N", "B", "Q", "K", "P");
+            // Only inspect the board cells, not the captured-piece tray to the right.
+            var cells = lines[i].Split("   ")[0];
+            cells.Should().Contain("·").And.NotContainAny("r", "n", "b", "q", "k", "p", "R", "N", "B", "Q", "K", "P");
         }
     }
 }

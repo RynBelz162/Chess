@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Chess.Api.Grains;
 using Orleans.TestingHost;
 
-namespace Chess.Api.Tests.Grains;
+namespace Chess.Api.IntegrationTests.Grains;
 
 [Collection(ClusterCollection.Name)]
 public class UserGrainTests(ClusterFixture fixture)

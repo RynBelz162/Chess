@@ -5,7 +5,7 @@ using Chess.Shared.Constants;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;
 
-namespace Chess.Api.Tests.Services;
+namespace Chess.Api.UnitTests.Services;
 
 public class SetupServiceTests
 {

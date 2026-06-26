@@ -4,7 +4,7 @@ using Chess.Api.Grains;
 using Chess.Shared.Constants;
 using Orleans.TestingHost;
 
-namespace Chess.Api.Tests.Grains;
+namespace Chess.Api.IntegrationTests.Grains;
 
 [Collection(ClusterCollection.Name)]
 public class GameGrainTests(ClusterFixture fixture)
@@ -72,7 +72,7 @@ public class GameGrainTests(ClusterFixture fixture)
 
         await act.Should()
             .ThrowAsync<ApplicationException>()
-            .WithMessage("Game is already full.");
+            .WithMessage("Trying to join an invalid game session");
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class GameGrainTests(ClusterFixture fixture)
 
         await act.Should()
             .ThrowAsync<ApplicationException>()
-            .WithMessage("Game is not in progress.");
+            .WithMessage("Both players are not ready to start.");
     }
 
     [Fact]

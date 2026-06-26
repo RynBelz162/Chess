@@ -7,7 +7,7 @@ using Orleans.Hosting;
 using Orleans.Serialization;
 using Orleans.TestingHost;
 
-namespace Chess.Api.Tests.Grains;
+namespace Chess.Api.IntegrationTests.Grains;
 
 public sealed class ClusterFixture : IDisposable
 {

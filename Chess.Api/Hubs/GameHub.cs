@@ -32,7 +32,7 @@ public class GameHub : Hub
         await AddToGroup(gameId);
 
         var gameSnapshot = await _grainFactory
-            .GetGrain<IGrameGrain>(gameId)
+            .GetGrain<IGameGrain>(gameId)
             .GetGameSnapshot();
 
         if (!gameSnapshot.IsSuccess)
@@ -70,7 +70,7 @@ public class GameHub : Hub
         var gameId = moveResult.Value;
 
         var gameSnapshot = await _grainFactory
-            .GetGrain<IGrameGrain>(gameId)
+            .GetGrain<IGameGrain>(gameId)
             .GetGameSnapshot();
 
         if (!gameSnapshot.IsSuccess)

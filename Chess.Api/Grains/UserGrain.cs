@@ -39,7 +39,7 @@ public class UserGrain : Grain, IUserGrain
         var newGameGuid = Guid.NewGuid();
 
         await _grainFactory
-            .GetGrain<IGrameGrain>(newGameGuid)
+            .GetGrain<IGameGrain>(newGameGuid)
             .Create(_playerState.State.UserId);
 
         _playerState.State.CurrentGameId = newGameGuid;
@@ -51,7 +51,7 @@ public class UserGrain : Grain, IUserGrain
     public async Task JoinGame(Guid gameId)
     {
         await _grainFactory
-            .GetGrain<IGrameGrain>(gameId)
+            .GetGrain<IGameGrain>(gameId)
             .Join(this.GetPrimaryKey());
         
         _playerState.State.CurrentGameId = gameId;
@@ -64,7 +64,7 @@ public class UserGrain : Grain, IUserGrain
             throw new ApplicationException("Player is not currently in a game.");
 
         var gameId = await _grainFactory
-            .GetGrain<IGrameGrain>(currentGameId)
+            .GetGrain<IGameGrain>(currentGameId)
             .Resign(this.GetPrimaryKey());
 
         _playerState.State.CurrentGameId = null;
@@ -82,7 +82,7 @@ public class UserGrain : Grain, IUserGrain
         }
 
         var moveResult = await _grainFactory
-            .GetGrain<IGrameGrain>(currentGameId.Value)
+            .GetGrain<IGameGrain>(currentGameId.Value)
             .Move(move, this.GetPrimaryKey());
 
         if (!moveResult.IsSuccess)

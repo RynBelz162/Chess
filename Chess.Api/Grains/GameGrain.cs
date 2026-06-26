@@ -8,7 +8,7 @@ using Chess.Shared.Constants;
 namespace Chess.Api.Grains;
 
 [StorageProvider(ProviderName = "chess")]
-public class GameGrain : Grain, IGrameGrain
+public class GameGrain : Grain, IGameGrain
 {
     private readonly IPersistentState<GameState> _gameState;
     private readonly ISetupService _setupService;

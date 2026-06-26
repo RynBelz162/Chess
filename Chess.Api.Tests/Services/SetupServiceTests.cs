@@ -14,21 +14,21 @@ public class SetupServiceTests
     [Theory]
     [InlineData(ChessColor.White, ChessColor.Black)]
     [InlineData(ChessColor.Black, ChessColor.White)]
-    public void GetOppositeColor_WhenPassValidColor_ShouldReturnOpposite(ChessColor color, ChessColor opposite)
+    public void GetOppositeColor_WhenValidColor_ShouldReturnOppositeColor(ChessColor color, ChessColor opposite)
     {
         var oppositeColor = _setupService.GetOppositeColor(color);
         oppositeColor.Should().Be(opposite);
     }
 
     [Fact]
-    public void GetOppositeColor_WhenInvalidColor_ThrowsInvalidException()
+    public void GetOppositeColor_WhenInvalidColor_ShouldThrowArgumentException()
     {
         var act = () => _setupService.GetOppositeColor((ChessColor)2);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public void InitializeBoard_StartingFen_IsCorrectStandardChessPosition()
+    public void InitializeBoard_WhenCalled_ShouldHaveStandardStartingFen()
     {
         var board = _setupService.InitializeBoard();
 
@@ -36,7 +36,7 @@ public class SetupServiceTests
     }
 
     [Fact]
-    public void InitializeBoard_ShouldReturnFreshBoard()
+    public void InitializeBoard_WhenCalled_ShouldReturnFreshBoard()
     {
         var board = _setupService.InitializeBoard();
 

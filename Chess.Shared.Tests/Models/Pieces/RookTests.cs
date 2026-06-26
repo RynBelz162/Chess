@@ -7,7 +7,7 @@ namespace Chess.Shared.Tests.Models.Pieces;
 public class RookTests
 {
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_MovesLeftRightUpDown()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldMoveAllDirections()
     {
         var rook = new Rook(ChessFile.D, 4)
         {
@@ -28,7 +28,7 @@ public class RookTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldCaptureAllDirections()
     {
         var rook = new Rook(ChessFile.E, 4)
         {

@@ -13,7 +13,7 @@ public class ChessFileHelperTests
     [InlineData(ChessFile.B, ChessFile.A, ChessFile.C)]
     [InlineData(ChessFile.A, null, ChessFile.B)]
     [InlineData(ChessFile.H, ChessFile.G, null)]
-    public void GetLeftAndRightFile_ReturnsCorrectFiles(ChessFile currentFile, ChessFile? expectedLeft, ChessFile? expectedRight)
+    public void GetLeftAndRightFile_WhenGivenCurrentFile_ShouldReturnCorrectFiles(ChessFile currentFile, ChessFile? expectedLeft, ChessFile? expectedRight)
     {
         var (leftFile, rightFile) = ChessFileHelper.GetLeftAndRightFile(currentFile);
         leftFile.Should().Be(expectedLeft);
@@ -21,7 +21,7 @@ public class ChessFileHelperTests
     }
 
     [Fact]
-    public void GetOrderedFiles_ReturnsOrderedFiles()
+    public void OrderedFiles_WhenAccessed_ShouldReturnFilesInOrder()
     {
         var files = ChessFileHelper.OrderedFiles;
         var expected = new List<char>

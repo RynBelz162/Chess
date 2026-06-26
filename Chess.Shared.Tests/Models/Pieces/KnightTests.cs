@@ -7,7 +7,7 @@ namespace Chess.Shared.Tests.Models.Pieces;
 public class KnightTests
 {
     [Fact]
-    public void RecalculateAvailableMoves_CanMoveAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldMoveAllDirections()
     {
         var knight = new Knight(ChessFile.C, 3)
         {
@@ -29,7 +29,7 @@ public class KnightTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_EdgeOfBoard_CantMoveLeft()
+    public void RecalculateAvailableMoves_WhenOnLeftEdgeOfBoard_ShouldNotMoveOffLeft()
     {
         var knight = new Knight(ChessFile.A, 3)
         {
@@ -53,7 +53,7 @@ public class KnightTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_EdgeOfBoard_CantMoveRight()
+    public void RecalculateAvailableMoves_WhenOnRightEdgeOfBoard_ShouldNotMoveOffRight()
     {
         var knight = new Knight(ChessFile.H, 3)
         {

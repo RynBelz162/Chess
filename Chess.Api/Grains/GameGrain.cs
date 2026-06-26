@@ -1,7 +1,6 @@
 ﻿using Chess.Shared.Models;
 using Chess.Api.Services;
 using Orleans.Providers;
-using Orleans.Runtime;
 using Chess.Shared.Models.State;
 using Chess.Shared.Enums;
 using Chess.Shared.Constants;
@@ -51,7 +50,6 @@ public class GameGrain : Grain, IGrameGrain
             throw new ApplicationException("Trying to join an invalid game session");
         }
 
-        _gameState.State.Status = GameStatus.InProgress;
         _gameState.State.PlayerTwo = new Player
         {
             UserId = userId,
@@ -61,6 +59,8 @@ public class GameGrain : Grain, IGrameGrain
         // White always moves first, regardless of who created the game.
         _gameState.State.PlayerOne.IsCurrentTurn = _gameState.State.PlayerOne.Color == ChessColor.White;
         _gameState.State.PlayerTwo.IsCurrentTurn = _gameState.State.PlayerTwo.Color == ChessColor.White;
+
+        _gameState.State.Status = GameStatus.InProgress;
 
         await _gameState.WriteStateAsync();
     }
@@ -119,27 +119,16 @@ public class GameGrain : Grain, IGrameGrain
             return Result.Fail("You can only move your own pieces.");
         }
 
-        try
+        var moveResult = piece.Move(request.TargetSquare, board);
+        if (!moveResult.IsSuccess)
         {
-            piece.Move(request.TargetSquare, board);
-        }
-        catch (ApplicationException ex)
-        {
-            return Result.Fail(ex.Message);
+            return Result.Fail(moveResult.FailureMessage);
         }
 
-        // Recalculate every remaining piece's moves so the next turn validates correctly.
-        foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
-        {
-            remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
-        }
-
+        player.Points += moveResult.Value;
         board.UpdateFen();
 
-        // Hand the turn to the opponent.
-        _gameState.State.PlayerOne.IsCurrentTurn = !_gameState.State.PlayerOne.IsCurrentTurn;
-        _gameState.State.PlayerTwo!.IsCurrentTurn = !_gameState.State.PlayerTwo.IsCurrentTurn;
-
+        _gameState.State.SwitchPlayerTurn(userId);
         await _gameState.WriteStateAsync();
 
         return Result.Ok();

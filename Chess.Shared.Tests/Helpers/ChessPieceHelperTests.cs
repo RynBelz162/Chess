@@ -19,14 +19,14 @@ public class ChessPieceHelperTests
     [InlineData('Q', typeof(Queen))]
     [InlineData('k', typeof(King))]
     [InlineData('K', typeof(King))]
-    public void TypeFromIdentifier_ValidTypes_ReturnsType(char identifier, Type expectedType)
+    public void TypeFromIdentifier_WhenValidIdentifier_ShouldReturnType(char identifier, Type expectedType)
     {
         var result = ChessPieceHelper.TypeFromIdentifier(identifier);
         result.Should().Be(expectedType);
     }
 
     [Fact]
-    public void TypeFromIdentifier_InvalidType_ThrowsException()
+    public void TypeFromIdentifier_WhenInvalidIdentifier_ShouldThrowException()
     {
         Action action = () => ChessPieceHelper.TypeFromIdentifier('X');
         action.Should().Throw<ArgumentException>().WithMessage("X is not a valid piece identifier.");
@@ -49,7 +49,7 @@ public class ChessPieceHelperTests
     [InlineData('A', false)]
     [InlineData('I', false)]
     [InlineData('y', false)]
-    public void IsPieceIdentifier_ValidCharacter_ReturnsExpecetd(char identifier, bool expected)
+    public void IsPieceIdentifier_WhenGivenCharacter_ShouldReturnExpected(char identifier, bool expected)
     {
         var result = ChessPieceHelper.IsPieceIdentifier(identifier);
         result.Should().Be(expected);

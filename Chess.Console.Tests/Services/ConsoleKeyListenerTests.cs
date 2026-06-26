@@ -7,7 +7,7 @@ namespace Chess.Console.Tests.Services;
 public class ConsoleKeyListenerTests
 {
     [Fact]
-    public async Task ListenUntil_TokenAlreadyCancelled_NeverInvokesHandler()
+    public async Task ListenUntil_WhenTokenAlreadyCancelled_ShouldNeverInvokeHandler()
     {
         var invoked = false;
         using var cts = new CancellationTokenSource();
@@ -28,7 +28,7 @@ public class ConsoleKeyListenerTests
     }
 
     [Fact]
-    public async Task ListenUntil_TokenAlreadyCancelled_EndsInCanceledState()
+    public async Task ListenUntil_WhenTokenAlreadyCancelled_ShouldEndInCanceledState()
     {
         using var cts = new CancellationTokenSource();
         cts.Cancel();

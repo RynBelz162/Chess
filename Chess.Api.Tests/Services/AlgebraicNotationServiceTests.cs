@@ -20,7 +20,7 @@ public class AlgebraicNotationServiceTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void GetRequest_EmptyMove_ReturnsInvalid(string move)
+    public void GetRequest_WhenEmptyMove_ShouldReturnInvalid(string move)
     {
         var result = _algebraicNotationService.GetRequest(move, It.IsAny<Board>());
         result.IsValid.Should().BeFalse();
@@ -30,7 +30,7 @@ public class AlgebraicNotationServiceTests
     [Theory]
     [InlineData("q")]
     [InlineData("qxe4=d6")]
-    public void GetRequest_InvalidMove_ReturnsInvalid(string move)
+    public void GetRequest_WhenInvalidMove_ShouldReturnInvalid(string move)
     {
         var result = _algebraicNotationService.GetRequest(move, It.IsAny<Board>());
         result.IsValid.Should().BeFalse();
@@ -39,7 +39,7 @@ public class AlgebraicNotationServiceTests
 
     [Theory]
     [MemberData(nameof(MoveRequestData))]
-    public void GetRequest_EmptyMove_ReturnsValid(string move, MovementRequest expected, Board board)
+    public void GetRequest_WhenValidMove_ShouldReturnValid(string move, MovementRequest expected, Board board)
     {
         var result = _algebraicNotationService.GetRequest(move, board);
         result.Should().BeEquivalentTo(expected);

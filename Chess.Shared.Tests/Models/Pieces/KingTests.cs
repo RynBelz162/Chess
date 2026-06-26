@@ -13,7 +13,7 @@ public class KingTests
         };
 
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_MovesAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldMoveAllDirections()
     {
         var board = new ChessBoardBuilder()
             .PlacePiece(_defaultKingPiece)
@@ -29,7 +29,7 @@ public class KingTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldCaptureAllDirections()
     {
         var board = new ChessBoardBuilder()
             .PlacePiece(_defaultKingPiece)

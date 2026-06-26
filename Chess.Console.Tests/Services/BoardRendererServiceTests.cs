@@ -18,7 +18,7 @@ public class BoardRendererServiceTests
         console.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     [Fact]
-    public void Render_WhitePerspective_FileLabelsAreLeftToRight()
+    public void Render_WhenWhitePerspective_ShouldShowFileLabelsLeftToRight()
     {
         var (service, console) = CreateService();
 
@@ -29,7 +29,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_Rank8IsFirstRankRow()
+    public void Render_WhenWhitePerspective_ShouldShowRank8AsFirstRankRow()
     {
         var (service, console) = CreateService();
 
@@ -40,7 +40,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_Rank1IsLastRankRow()
+    public void Render_WhenWhitePerspective_ShouldShowRank1AsLastRankRow()
     {
         var (service, console) = CreateService();
 
@@ -51,7 +51,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_BlackPiecesOnRank8()
+    public void Render_WhenWhitePerspective_ShouldShowBlackPiecesOnRank8()
     {
         var (service, console) = CreateService();
 
@@ -62,7 +62,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_WhitePiecesOnRank1()
+    public void Render_WhenWhitePerspective_ShouldShowWhitePiecesOnRank1()
     {
         var (service, console) = CreateService();
 
@@ -73,7 +73,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_EmptyRanksShowDots()
+    public void Render_WhenWhitePerspective_ShouldShowDotsForEmptyRanks()
     {
         var (service, console) = CreateService();
 
@@ -88,7 +88,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_BlackPerspective_FileLabelsAreRightToLeft()
+    public void Render_WhenBlackPerspective_ShouldShowFileLabelsRightToLeft()
     {
         var (service, console) = CreateService();
 
@@ -99,7 +99,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_BlackPerspective_Rank1IsFirstRankRow()
+    public void Render_WhenBlackPerspective_ShouldShowRank1AsFirstRankRow()
     {
         var (service, console) = CreateService();
 
@@ -110,7 +110,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_BlackPerspective_Rank8IsLastRankRow()
+    public void Render_WhenBlackPerspective_ShouldShowRank8AsLastRankRow()
     {
         var (service, console) = CreateService();
 
@@ -121,7 +121,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_BlackPerspective_BlackPiecesOnRank8_FilesReversed()
+    public void Render_WhenBlackPerspective_ShouldShowBlackPiecesOnRank8WithFilesReversed()
     {
         var (service, console) = CreateService();
 
@@ -132,7 +132,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_WhitePerspective_PlayerCapturesOnBottomRow()
+    public void Render_WhenWhitePerspective_ShouldShowPlayerCapturesOnBottomRow()
     {
         var (service, console) = CreateService();
         // White is missing a knight and a pawn -> black captured them (shown top).
@@ -147,7 +147,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_StartingPosition_NoCapturedPieces()
+    public void Render_WhenStartingPosition_ShouldShowNoCapturedPieces()
     {
         var (service, console) = CreateService();
 
@@ -159,7 +159,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_OutputHas18Lines()
+    public void Render_WhenCalled_ShouldOutput18Lines()
     {
         var (service, console) = CreateService();
 
@@ -170,7 +170,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_FenWithFullPosition_IgnoresNonPositionFields()
+    public void Render_WhenFenHasFullPosition_ShouldIgnoreNonPositionFields()
     {
         var (service, console) = CreateService();
         var fullFen = $"{StartingFen} w KQkq - 0 1";
@@ -182,7 +182,7 @@ public class BoardRendererServiceTests
     }
 
     [Fact]
-    public void Render_EmptyBoard_AllSquaresAreDots()
+    public void Render_WhenBoardEmpty_ShouldShowAllSquaresAsDots()
     {
         var (service, console) = CreateService();
         var emptyFen = "8/8/8/8/8/8/8/8";

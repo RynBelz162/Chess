@@ -7,7 +7,7 @@ namespace Chess.Shared.Tests.Models.Pieces;
 public class PieceTests
 {
     [Fact]
-    public void Move_Capture_MarksCapturedAndRemovesFromBoard()
+    public void Move_WhenCapturing_ShouldMarkCapturedAndRemoveFromBoard()
     {
         var rook = new Rook(ChessFile.E, 4)
         {
@@ -28,7 +28,7 @@ public class PieceTests
     }
 
     [Fact]
-    public void Move_Capture_PlacesMoverOnTargetAndVacatesSource()
+    public void Move_WhenCapturing_ShouldPlaceMoverOnTargetAndVacateSource()
     {
         var rook = new Rook(ChessFile.E, 4)
         {
@@ -49,7 +49,7 @@ public class PieceTests
     }
 
     [Fact]
-    public void Move_Capture_RemovedPieceDroppedFromFen()
+    public void Move_WhenCapturing_ShouldDropRemovedPieceFromFen()
     {
         var rook = new Rook(ChessFile.E, 4)
         {

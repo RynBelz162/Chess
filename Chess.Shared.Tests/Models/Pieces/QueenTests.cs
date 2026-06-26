@@ -7,7 +7,7 @@ namespace Chess.Shared.Tests.Models.Pieces;
 public class QueenTests
 {
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_MovesAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldMoveAllDirections()
     {
         var queen = new Queen(ChessFile.D, 4)
         {
@@ -31,7 +31,7 @@ public class QueenTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_MiddleOfBoard_CaptureAllDirections()
+    public void RecalculateAvailableMoves_WhenInMiddleOfBoard_ShouldCaptureAllDirections()
     {
         var queen = new Queen(ChessFile.E, 4)
         {

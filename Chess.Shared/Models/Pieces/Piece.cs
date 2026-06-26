@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 
 namespace Chess.Shared.Models.Pieces;
 
@@ -12,25 +12,29 @@ public abstract class Piece(ChessFile chessFile, int rank)
     public string CurrentSquare => $"{CurrentFile}{CurrentRank}";
     public bool IsCaptured { get; set; }
 
+    // Point value used when this piece is captured. King has no value (cannot be captured).
+    public abstract int Value { get; }
+
     public bool CanMove() => AvailableMoves.Count != 0;
 
-    public void Move(string square, Board board)
+    // Returns the piece captured by this move, or null if the target square was empty.
+    public Result<int> Move(string square, Board board)
     {
         if (string.IsNullOrWhiteSpace(square) || !board.Squares.TryGetValue(square, out var targetSquare))
         {
-            throw new ApplicationException("Invalid target square.");
+            return Result.Fail<int>("Invalid target square.");
         }
 
         if (!AvailableMoves.Contains(square))
         {
-            throw new ApplicationException("Cannot move piece to target square.");
+            return Result.Fail<int>("Cannot move piece to target square.");
         }
 
-        // Capture whatever currently sits on the target square and take it off the board.
-        if (targetSquare.Piece is not null)
+        var capturedPiece = targetSquare.Piece;
+        if (capturedPiece is not null)
         {
-            targetSquare.Piece.IsCaptured = true;
-            board.Pieces.Remove(targetSquare.Piece);
+            capturedPiece.IsCaptured = true;
+            board.Pieces.Remove(capturedPiece);
         }
 
         // Vacate the square the piece is moving from.
@@ -41,8 +45,16 @@ public abstract class Piece(ChessFile chessFile, int rank)
         CurrentFile = (ChessFile)square[0];
         CurrentRank = square[1] - '0';
 
-        AvailableMoves = RecalculateAvailableMoves(board);
+        // recalculate the available moves for all other pieces on the board,
+        // since this move may have opened up new moves for other pieces.
+        foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
+        {
+            remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
+        }
+
         NumberOfMoves++;
+
+        return Result.Ok(0);
     }
 
     public abstract List<string> RecalculateAvailableMoves(Board board);

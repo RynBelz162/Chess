@@ -8,6 +8,8 @@ public class Queen(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'Q';
 
+    public override int Value => 9;
+
     public override List<string> RecalculateAvailableMoves(Board board)
     {
         var moves = new List<string>();

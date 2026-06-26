@@ -8,7 +8,7 @@ public class PawnTests
 {
     [Theory]
     [MemberData(nameof(ForwardData))]
-    public void RecalculateAvailableMoves_EmptyForward_CanMoveForward(ChessColor color, int numberOfMoves, string[] expectedMoves)
+    public void RecalculateAvailableMoves_WhenForwardEmpty_ShouldMoveForward(ChessColor color, int numberOfMoves, string[] expectedMoves)
     {
         var pawn = new Pawn(ChessFile.B, 5)
         {
@@ -39,7 +39,7 @@ public class PawnTests
     [InlineData('r')]
     [InlineData('B')]
     [InlineData('q')]
-    public void RecalculateAvailableMoves_White_SpaceTakenAbove_CantMoveUp(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenWhiteAndSpaceTakenAbove_ShouldNotMoveUp(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 2)
         {
@@ -61,7 +61,7 @@ public class PawnTests
     [InlineData('r')]
     [InlineData('b')]
     [InlineData('q')]
-    public void RecalculateAvailableMoves_White_LeftCapture_DiagonalLeft(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenWhiteAndLeftCaptureAvailable_ShouldMoveDiagonalLeft(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 2)
         {
@@ -80,7 +80,7 @@ public class PawnTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_White_CanEnPassant()
+    public void RecalculateAvailableMoves_WhenWhiteAndEnPassantAvailable_ShouldAllowEnPassant()
     {
         var pawn = new Pawn(ChessFile.B, 2)
         {
@@ -105,7 +105,7 @@ public class PawnTests
     [InlineData('b')]
     [InlineData('q')]
     [InlineData('k')]
-    public void RecalculateAvailableMoves_White_IsNotPawn_CantEnPassant(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenWhiteAndTargetIsNotPawn_ShouldNotAllowEnPassant(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 2)
         {
@@ -125,7 +125,7 @@ public class PawnTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_White_AlreadyMovedFromStart_CantEnPassant()
+    public void RecalculateAvailableMoves_WhenWhiteAndAlreadyMovedFromStart_ShouldNotAllowEnPassant()
     {
         var pawn = new Pawn(ChessFile.B, 2)
         {
@@ -150,7 +150,7 @@ public class PawnTests
     [InlineData('R')]
     [InlineData('b')]
     [InlineData('Q')]
-    public void RecalculateAvailableMoves_Black_SpaceTakenBelow_CantMoveBelow(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenBlackAndSpaceTakenBelow_ShouldNotMoveDown(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 3)
         {
@@ -172,7 +172,7 @@ public class PawnTests
     [InlineData('R')]
     [InlineData('B')]
     [InlineData('Q')]
-    public void RecalculateAvailableMoves_Black_LeftCapture_DiagonalLeft(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenBlackAndLeftCaptureAvailable_ShouldMoveDiagonalLeft(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 6)
         {
@@ -192,7 +192,7 @@ public class PawnTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_Black_CanEnPassant()
+    public void RecalculateAvailableMoves_WhenBlackAndEnPassantAvailable_ShouldAllowEnPassant()
     {
         var pawn = new Pawn(ChessFile.B, 6)
         {
@@ -217,7 +217,7 @@ public class PawnTests
     [InlineData('B')]
     [InlineData('Q')]
     [InlineData('K')]
-    public void RecalculateAvailableMoves_Black_IsNotPawn_CantEnPassant(char pieceIdentifier)
+    public void RecalculateAvailableMoves_WhenBlackAndTargetIsNotPawn_ShouldNotAllowEnPassant(char pieceIdentifier)
     {
         var pawn = new Pawn(ChessFile.B, 5)
         {
@@ -238,7 +238,7 @@ public class PawnTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_Black_AlreadyMovedFromStart_CantEnPassant()
+    public void RecalculateAvailableMoves_WhenBlackAndAlreadyMovedFromStart_ShouldNotAllowEnPassant()
     {
         var pawn = new Pawn(ChessFile.B, 7)
         {

@@ -9,7 +9,7 @@ public class BishopTests
     [Theory]
     [InlineData(ChessColor.White)]
     [InlineData(ChessColor.Black)]
-    public void RecalculateAvailableMoves_NoBlockers(ChessColor color)
+    public void RecalculateAvailableMoves_WhenNoBlockers_ShouldMoveAllDiagonals(ChessColor color)
     {
         var bishop = new Bishop(ChessFile.E, 4)
         {
@@ -30,7 +30,7 @@ public class BishopTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_White_Blockers_NoMoves()
+    public void RecalculateAvailableMoves_WhenWhiteAndBlockedByOwnPieces_ShouldHaveNoMoves()
     {
         var bishop = new Bishop(ChessFile.E, 4)
         {
@@ -51,7 +51,7 @@ public class BishopTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_Black_Blockers_NoMoves()
+    public void RecalculateAvailableMoves_WhenBlackAndBlockedByOwnPieces_ShouldHaveNoMoves()
     {
         var bishop = new Bishop(ChessFile.E, 4)
         {
@@ -72,7 +72,7 @@ public class BishopTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_White_Captures_HasMoves()
+    public void RecalculateAvailableMoves_WhenWhiteAndCapturesAvailable_ShouldHaveMoves()
     {
         var bishop = new Bishop(ChessFile.E, 4)
         {
@@ -97,7 +97,7 @@ public class BishopTests
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_Black_Captures_HasMoves()
+    public void RecalculateAvailableMoves_WhenBlackAndCapturesAvailable_ShouldHaveMoves()
     {
         var bishop = new Bishop(ChessFile.E, 4)
         {

@@ -7,6 +7,8 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 {
     public const char Identifier = 'P';
 
+    public override int Value => 1;
+
     private int NextRankForColor => Color == ChessColor.White ? CurrentRank + 1 : CurrentRank - 1;
 
     public override List<string> RecalculateAvailableMoves(Board board)

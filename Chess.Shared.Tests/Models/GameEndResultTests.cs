@@ -15,7 +15,7 @@ public class GameEndResultTests
     [InlineData(GameEndOutcome.Drawing, GameEndReason.Checkmate, "Draw by checkmate.")]
     [InlineData(GameEndOutcome.Drawing, GameEndReason.Resignation, "Draw by resignation.")]
     [InlineData(GameEndOutcome.Drawing, GameEndReason.Stalemate, "Draw by stalemate.")]
-    public void FormatGameEnd_ReturnsExpectedMessage(GameEndOutcome outcome, GameEndReason reason, string expected)
+    public void FormatGameEnd_WhenGivenOutcomeAndReason_ShouldReturnExpectedMessage(GameEndOutcome outcome, GameEndReason reason, string expected)
     {
         var result = new GameEndResult { Outcome = outcome, Reason = reason };
 

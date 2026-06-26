@@ -1,4 +1,4 @@
-namespace Chess.Shared.Models;
+﻿namespace Chess.Shared.Models;
 
 public record Result
 {

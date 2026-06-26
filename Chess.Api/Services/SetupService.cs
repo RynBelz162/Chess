@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 using Chess.Shared.Models;
 using Chess.Shared.Models.Pieces;

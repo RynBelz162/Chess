@@ -1,4 +1,6 @@
-﻿namespace Chess.Shared.Models.State;
+﻿using Chess.Shared.Constants;
+
+namespace Chess.Shared.Models.State;
 
 public class GameStateSnapshot
 {
@@ -19,5 +21,15 @@ public class GameStateSnapshot
         }
 
         return Result.Fail<Player>("Player not found in game");
+    }
+
+    public Player GetPlayerByColor(ChessColor color)
+    {
+        if (PlayerOne.Color == color)
+        {
+            return PlayerOne;
+        }
+
+        return PlayerTwo;
     }
 }

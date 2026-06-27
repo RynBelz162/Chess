@@ -27,6 +27,46 @@ public class PieceTests
         board.Pieces.Should().NotContain(captured);
     }
 
+    [Theory]
+    [InlineData('q', 9)]
+    [InlineData('r', 5)]
+    [InlineData('b', 3)]
+    [InlineData('n', 3)]
+    [InlineData('p', 1)]
+    public void Move_WhenCapturing_ShouldReturnCapturedPieceValue(char capturedPiece, int expectedValue)
+    {
+        var rook = new Rook(ChessFile.E, 4)
+        {
+            Color = ChessColor.White
+        };
+
+        var board = new ChessBoardBuilder()
+            .PlacePiece(rook)
+            .CreatePieceAt(capturedPiece, ChessFile.E, 7)
+            .Build();
+
+        var result = rook.Move("E7", board);
+
+        result.Value.Should().Be(expectedValue);
+    }
+
+    [Fact]
+    public void Move_WhenNotCapturing_ShouldReturnZero()
+    {
+        var rook = new Rook(ChessFile.E, 4)
+        {
+            Color = ChessColor.White
+        };
+
+        var board = new ChessBoardBuilder()
+            .PlacePiece(rook)
+            .Build();
+
+        var result = rook.Move("E7", board);
+
+        result.Value.Should().Be(0);
+    }
+
     [Fact]
     public void Move_WhenCapturing_ShouldPlaceMoverOnTargetAndVacateSource()
     {

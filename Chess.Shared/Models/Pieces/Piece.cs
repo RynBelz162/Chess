@@ -31,10 +31,12 @@ public abstract class Piece(ChessFile chessFile, int rank)
         }
 
         var capturedPiece = targetSquare.Piece;
+        var capturedValue = 0;
         if (capturedPiece is not null)
         {
             capturedPiece.IsCaptured = true;
             board.Pieces.Remove(capturedPiece);
+            capturedValue = capturedPiece.Value;
         }
 
         // Vacate the square the piece is moving from.
@@ -54,7 +56,7 @@ public abstract class Piece(ChessFile chessFile, int rank)
 
         NumberOfMoves++;
 
-        return Result.Ok(0);
+        return Result.Ok(capturedValue);
     }
 
     public abstract List<string> RecalculateAvailableMoves(Board board);

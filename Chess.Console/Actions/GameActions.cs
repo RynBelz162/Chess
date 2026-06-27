@@ -32,7 +32,7 @@ public class GameActions
         AnsiConsole.MarkupLine($"[bold red]Game is ready! You are playing as {color}[/]");
         AnsiConsole.MarkupLine("Enter moves in algebraic notation (e.g. [bold]e4[/], [bold]Bb5[/]), or type [bold]resign[/].");
 
-        _boardRenderer.Render(gameState.CurrentFen, color);
+        _boardRenderer.Render(gameState, color);
 
         // A single game-end task spans the whole game (e.g. opponent resignation).
         var gameEndTask = _gameService.WaitForGameEnd();
@@ -52,7 +52,7 @@ public class GameActions
                 Environment.Exit(0);
             }
 
-            _boardRenderer.Render(_gameService.GetCurrentGameState().CurrentFen, color);
+            _boardRenderer.Render(_gameService.GetCurrentGameState(), color);
         }
     }
 

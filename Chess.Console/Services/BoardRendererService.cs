@@ -1,4 +1,5 @@
 ﻿using Chess.Shared.Constants;
+using Chess.Shared.Models.State;
 using Spectre.Console;
 
 namespace Chess.Console.Services;
@@ -23,11 +24,11 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
         { 'p', "[bold grey]p[/]" },
     };
 
-    public void Render(string fen, ChessColor perspective)
+    public void Render(GameStateSnapshot snapshot, ChessColor perspective)
     {
         var isPlayingWhite = perspective == ChessColor.White;
 
-        var positionPart = fen.Split(' ')[0];
+        var positionPart = snapshot.CurrentFen.Split(' ')[0];
         var ranks = positionPart.Split('/');
 
         var board = ParseRanks(ranks);
@@ -42,8 +43,7 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
             ? [.. Enumerable.Range(0, 8)]
             : Enumerable.Range(0, 8).Reverse().ToList();
 
-        var opponentsCapturedPieces = CapturedMarkup(board, capturedColorWhite: isPlayingWhite);
-        var playersCapturedPieces = CapturedMarkup(board, capturedColorWhite: !isPlayingWhite);
+        var (opponentsCapturedPieces, playersCapturedPieces) = GetCapturedPieces(board, snapshot, isPlayingWhite);
 
         console.MarkupLine(BoardLineSeparator);
         for (int rankIdx = 0; rankIdx < rankOrder.Count; rankIdx++)
@@ -56,7 +56,7 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
         console.WriteLine();
     }
 
-    internal static char[][] ParseRanks(string[] ranks)
+    private static char[][] ParseRanks(string[] ranks)
     {
         var board = new char[8][];
         for (int rankIdx = 0; rankIdx < 8; rankIdx++)
@@ -81,7 +81,29 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
         ('Q', 1), ('R', 2), ('B', 2), ('N', 2), ('P', 8),
     ];
 
-    internal static string CapturedMarkup(char[][] board, bool capturedColorWhite)
+    private (string? opponentsCapturedPieces, string? playersCapturedPieces) GetCapturedPieces(char[][] board, GameStateSnapshot snapshot, bool isPlayingWhite)
+    {
+        var player = snapshot.GetPlayerByColor(isPlayingWhite ? ChessColor.White : ChessColor.Black);
+        var opponent = snapshot.GetPlayerByColor(isPlayingWhite ? ChessColor.Black : ChessColor.White);
+
+        var opponentsCapturedPieces = CapturedMarkup(board, capturedColorWhite: isPlayingWhite);
+        var playersCapturedPieces = CapturedMarkup(board, capturedColorWhite: !isPlayingWhite);
+
+        // Whoever is ahead on points shows the advantage next to their captured pieces.
+        var advantage = player.Points - opponent.Points;
+        if (advantage > 0)
+        {
+            playersCapturedPieces = AppendAdvantage(playersCapturedPieces, advantage);
+        }
+        else if (advantage < 0)
+        {
+            opponentsCapturedPieces = AppendAdvantage(opponentsCapturedPieces, -advantage);
+        }
+
+        return (opponentsCapturedPieces, playersCapturedPieces);
+    }
+
+    private static string CapturedMarkup(char[][] board, bool capturedColorWhite)
     {
         var onBoard = new Dictionary<char, int>();
         foreach (var row in board)
@@ -110,6 +132,12 @@ public class BoardRendererService(IAnsiConsole console) : IBoardRendererService
         }
 
         return string.Join(" ", cells);
+    }
+
+    private static string AppendAdvantage(string capturedMarkup, int advantage)
+    {
+        var badge = $"[bold yellow]+{advantage}[/]";
+        return string.IsNullOrEmpty(capturedMarkup) ? badge : $"{capturedMarkup} {badge}";
     }
 
     private static string CellMarkup(char piece) =>

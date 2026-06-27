@@ -102,7 +102,7 @@ public class GameGrain : Grain, IGameGrain
 
         var board = _gameState.State.Board;
 
-        var request = _algebraicNotationService.GetRequest(move, board);
+        var request = _algebraicNotationService.GetRequest(move, board, player.Color);
         if (!request.IsValid)
         {
             return Result.Fail(request.ErrorMessage);

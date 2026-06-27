@@ -18,7 +18,7 @@ public abstract class Piece(ChessFile chessFile, int rank)
     public bool CanMove() => AvailableMoves.Count != 0;
 
     // Returns the piece captured by this move, or null if the target square was empty.
-    public Result<int> Move(string square, Board board)
+    public virtual Result<int> Move(string square, Board board)
     {
         if (string.IsNullOrWhiteSpace(square) || !board.Squares.TryGetValue(square, out var targetSquare))
         {
@@ -49,14 +49,32 @@ public abstract class Piece(ChessFile chessFile, int rank)
 
         // recalculate the available moves for all other pieces on the board,
         // since this move may have opened up new moves for other pieces.
-        foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
-        {
-            remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
-        }
+        RecalculateAllMoves(board);
 
         NumberOfMoves++;
 
         return Result.Ok(capturedValue);
+    }
+
+    // Moves the piece to the target square without validation or recalculation.
+    // Used for the rook half of a castle, where the move has already been validated.
+    internal void Relocate(string square, Board board)
+    {
+        board.Squares[CurrentSquare].Piece = null;
+        board.Squares[square].Piece = this;
+
+        CurrentFile = (ChessFile)square[0];
+        CurrentRank = square[1] - '0';
+
+        NumberOfMoves++;
+    }
+
+    protected static void RecalculateAllMoves(Board board)
+    {
+        foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
+        {
+            remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
+        }
     }
 
     public abstract List<string> RecalculateAvailableMoves(Board board);

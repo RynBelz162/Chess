@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
@@ -23,11 +23,34 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         DiagonalBottomLeft(moves, board);
         DiagonalBottomRight(moves, board);
 
-        // TODO: Fix castle logic for spaces in between rook and king 🙃
-        CheckWhiteCastles(moves, board);
-        CheckBlackCastles(moves, board);
+        CheckCastles(moves, board);
 
         return moves;
+    }
+
+    public override Result<int> Move(string square, Board board)
+    {
+        if (NumberOfMoves > 0)
+        {
+            return base.Move(square, board);
+        }
+
+        var castle = CastleOptions().FirstOrDefault(o => o.KingTarget == square);
+        var result = base.Move(square, board);
+        
+        if (!result.IsSuccess || castle is null)
+        {
+            return result;
+        }
+
+        // The king moved; bring the rook to the other side of it and refresh moves.
+        if (board.PieceOnSquare(castle.RookSquare) is Rook rook)
+        {
+            rook.Relocate(castle.RookTarget, board);
+            RecalculateAllMoves(board);
+        }
+
+        return result;
     }
 
     private void Forwards(ICollection<string> moves, Board board)
@@ -89,9 +112,9 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         }
 
         var (left, _) = ChessFileHelper.GetLeftAndRightFile(CurrentFile);
-        var targetSqaure = $"{left}{CurrentRank + 1}";
+        var targetSquare = $"{left}{CurrentRank + 1}";
         
-        AddToMovesListIfValid(board, moves, targetSqaure);
+        AddToMovesListIfValid(board, moves, targetSquare);
     }
 
 
@@ -103,9 +126,9 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         }
 
         var (_, right) = ChessFileHelper.GetLeftAndRightFile(CurrentFile);
-        var targetSqaure = $"{right}{CurrentRank + 1}";
+        var targetSquare = $"{right}{CurrentRank + 1}";
         
-        AddToMovesListIfValid(board, moves, targetSqaure);
+        AddToMovesListIfValid(board, moves, targetSquare);
     }
 
     public void DiagonalBottomLeft(ICollection<string> moves, Board board)
@@ -116,9 +139,9 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         }
 
         var (left, _) = ChessFileHelper.GetLeftAndRightFile(CurrentFile);
-        var targetSqaure = $"{left}{CurrentRank - 1}";
+        var targetSquare = $"{left}{CurrentRank - 1}";
         
-        AddToMovesListIfValid(board, moves, targetSqaure);
+        AddToMovesListIfValid(board, moves, targetSquare);
     }
 
 
@@ -130,29 +153,29 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         }
 
         var (_, right) = ChessFileHelper.GetLeftAndRightFile(CurrentFile);
-        var targetSqaure = $"{right}{CurrentRank - 1}";
+        var targetSquare = $"{right}{CurrentRank - 1}";
         
-        AddToMovesListIfValid(board, moves, targetSqaure);
+        AddToMovesListIfValid(board, moves, targetSquare);
     }
 
-    private void AddToMovesListIfValid(Board board, ICollection<string> moves, string targetSqaure)
+    private void AddToMovesListIfValid(Board board, ICollection<string> moves, string targetSquare)
     {
-        if (!CanMoveToSqaure(board, targetSqaure))
+        if (!CanMoveToSquare(board, targetSquare))
         {
             return;
         }
 
-        moves.Add(targetSqaure);
+        moves.Add(targetSquare);
     }
 
-    private bool CanMoveToSqaure(Board board, string targetSqaure)
+    private bool CanMoveToSquare(Board board, string targetSquare)
     {
-        if (!board.IsSquareOccupied(targetSqaure))
+        if (!board.IsSquareOccupied(targetSquare))
         {
             return true;
         }
 
-        if (board.PieceColorOnSquare(targetSqaure) == Color)
+        if (board.PieceColorOnSquare(targetSquare) == Color)
         {
             return false;
         }
@@ -160,46 +183,46 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         return true;
     }
 
-    private void CheckWhiteCastles(ICollection<string> moves, Board board)
+    // King's target square, the rook involved, where the rook lands,
+    // and the squares that must be empty between them.
+    private sealed record CastleOption(string KingTarget, string RookSquare, string RookTarget, string[] EmptySquares);
+
+    private int HomeRank => Color == ChessColor.White ? 1 : 8;
+
+    private IEnumerable<CastleOption> CastleOptions()
     {
-        if (Color != ChessColor.White || NumberOfMoves > 0)
+        var rank = HomeRank;
+
+        // King side (H-rook): king to G, rook to F.
+        yield return new CastleOption($"G{rank}", $"H{rank}", $"F{rank}", [$"F{rank}", $"G{rank}"]);
+
+        // Queen side (A-rook): king to C, rook to D.
+        yield return new CastleOption($"C{rank}", $"A{rank}", $"D{rank}", [$"B{rank}", $"C{rank}", $"D{rank}"]);
+    }
+
+    private void CheckCastles(ICollection<string> moves, Board board)
+    {
+        if (NumberOfMoves > 0)
         {
             return;
         }
 
-        const string leftWhiteCastle = "A1";
-        const string leftWhiteSpace = "C1";
-
-        const string rightWhiteCastle = "H1";
-        const string rightWhiteSpace = "G1";
-
-        AddMoveIfCanCastle(moves, board, leftWhiteCastle, leftWhiteSpace);
-        AddMoveIfCanCastle(moves, board, rightWhiteCastle, rightWhiteSpace);
+        foreach (var option in CastleOptions())
+        {
+            if (CanCastle(board, option))
+            {
+                moves.Add(option.KingTarget);
+            }
+        }
     }
 
-    private void CheckBlackCastles(ICollection<string> moves, Board board)
+    private static bool CanCastle(Board board, CastleOption option)
     {
-        if (Color != ChessColor.Black || NumberOfMoves > 0)
+        if (board.PieceOnSquare(option.RookSquare) is not Rook rook || rook.NumberOfMoves > 0)
         {
-            return;
+            return false;
         }
 
-        const string leftBlackCastle = "A8";
-        const string leftBlackSpace = "G8";
-
-        const string rightBlackCastle = "H8";
-        const string rightBlackSpace = "C8";
-
-        AddMoveIfCanCastle(moves, board, leftBlackCastle, leftBlackSpace);
-        AddMoveIfCanCastle(moves, board, rightBlackCastle, rightBlackSpace);
-    }
-
-    private void AddMoveIfCanCastle(ICollection<string> moves, Board board, string rookSquare, string targetSqaure)
-    {
-        var targetPiece = board.PieceOnSquare(rookSquare);
-        if (targetPiece is Rook rook && rook.NumberOfMoves == 0)
-        {
-            moves.Add(targetSqaure);
-        }
+        return option.EmptySquares.All(square => !board.IsSquareOccupied(square));
     }
 }

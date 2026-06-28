@@ -27,4 +27,32 @@ public class GameState
             PlayerOne.IsCurrentTurn = true;
         }
     }
+
+    public Player GetPlayer(Guid userId)
+    {
+        if (PlayerOne.UserId == userId)
+        {
+            return PlayerOne;
+        } 
+        else if (PlayerTwo?.UserId == userId)
+        {
+            return PlayerTwo;
+        }
+
+        throw new ApplicationException("Player not found in game.");
+    }
+
+    public Player GetOpponent(Guid userId)
+    {
+        if (PlayerOne.UserId == userId)
+        {
+            return PlayerTwo ?? throw new ApplicationException("Opponent not found in game.");
+        } 
+        else if (PlayerTwo?.UserId == userId)
+        {
+            return PlayerOne;
+        }
+
+        throw new ApplicationException("Player not found in game.");
+    }
 }

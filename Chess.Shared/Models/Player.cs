@@ -8,4 +8,5 @@ public class Player
     public ChessColor Color { get; set; }
     public bool IsCurrentTurn { get; set; }
     public int Points { get; set; }
+    public bool IsInCheck { get; set; }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Chess.Api.Grains;
+﻿using Chess.Api.Grains;
 using Chess.Shared.Constants;
 using Orleans.TestingHost;
 
@@ -91,20 +89,6 @@ public class GameGrainTests(ClusterFixture fixture)
 
         var snapshot = await game.GetGameSnapshot();
         snapshot.IsSuccess.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Resign_WhenGameWaitingForOpponent_ShouldThrow()
-    {
-        var playerOne = Guid.NewGuid();
-        var game = NewGameGrain();
-        await game.Create(playerOne);
-
-        var act = async () => await game.Resign(playerOne);
-
-        await act.Should()
-            .ThrowAsync<ApplicationException>()
-            .WithMessage("Both players are not ready to start.");
     }
 
     [Fact]

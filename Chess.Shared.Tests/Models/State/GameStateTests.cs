@@ -57,4 +57,100 @@ public class GameStateTests
         gameState.PlayerOne.IsCurrentTurn.Should().BeTrue();
         gameState.PlayerTwo!.IsCurrentTurn.Should().BeFalse();
     }
+
+    [Fact]
+    public void GetPlayer_WhenPlayerOneId_ShouldReturnPlayerOne()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var result = gameState.GetPlayer(playerOneId);
+
+        result.Should().BeSameAs(gameState.PlayerOne);
+    }
+
+    [Fact]
+    public void GetPlayer_WhenPlayerTwoId_ShouldReturnPlayerTwo()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var result = gameState.GetPlayer(playerTwoId);
+
+        result.Should().BeSameAs(gameState.PlayerTwo);
+    }
+
+    [Fact]
+    public void GetPlayer_WhenUnknownPlayerId_ShouldThrow()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var act = () => gameState.GetPlayer(Guid.NewGuid());
+
+        act.Should().Throw<ApplicationException>().WithMessage("Player not found in game.");
+    }
+
+    [Fact]
+    public void GetPlayer_WhenPlayerTwoIsNull_ShouldThrowForUnknownId()
+    {
+        var playerOneId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, Guid.NewGuid());
+        gameState.PlayerTwo = null;
+
+        var act = () => gameState.GetPlayer(Guid.NewGuid());
+
+        act.Should().Throw<ApplicationException>().WithMessage("Player not found in game.");
+    }
+
+    [Fact]
+    public void GetOpponent_WhenPlayerOneId_ShouldReturnPlayerTwo()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var result = gameState.GetOpponent(playerOneId);
+
+        result.Should().BeSameAs(gameState.PlayerTwo);
+    }
+
+    [Fact]
+    public void GetOpponent_WhenPlayerTwoId_ShouldReturnPlayerOne()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var result = gameState.GetOpponent(playerTwoId);
+
+        result.Should().BeSameAs(gameState.PlayerOne);
+    }
+
+    [Fact]
+    public void GetOpponent_WhenPlayerOneIdButPlayerTwoIsNull_ShouldThrow()
+    {
+        var playerOneId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, Guid.NewGuid());
+        gameState.PlayerTwo = null;
+
+        var act = () => gameState.GetOpponent(playerOneId);
+
+        act.Should().Throw<ApplicationException>().WithMessage("Opponent not found in game.");
+    }
+
+    [Fact]
+    public void GetOpponent_WhenUnknownPlayerId_ShouldThrow()
+    {
+        var playerOneId = Guid.NewGuid();
+        var playerTwoId = Guid.NewGuid();
+        var gameState = CreateGameState(playerOneId, playerTwoId);
+
+        var act = () => gameState.GetOpponent(Guid.NewGuid());
+
+        act.Should().Throw<ApplicationException>().WithMessage("Player not found in game.");
+    }
 }

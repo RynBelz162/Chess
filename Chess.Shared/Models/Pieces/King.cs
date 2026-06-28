@@ -53,6 +53,14 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         return result;
     }
 
+    public bool IsKingChecked(Board board, ChessColor color)
+    {
+        var attackingColor = color == ChessColor.White ? ChessColor.Black : ChessColor.White;
+
+        return board.Pieces
+            .Any(p => p.Color == attackingColor && p.AvailableMoves.Contains(CurrentSquare));
+    }
+
     private void Forwards(ICollection<string> moves, Board board)
     {
         if (CurrentRank == 8)

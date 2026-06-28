@@ -1,4 +1,4 @@
-using Chess.Console.Services;
+﻿using Chess.Console.Services;
 using Chess.Shared.Models;
 using Chess.Shared.Models.State;
 using Spectre.Console;
@@ -61,7 +61,7 @@ public class GameActions
     {
         while (true)
         {
-            var input = AnsiConsole.Ask<string>("[bold green]Your move:[/]").Trim();
+            var input = TurnInputPrompt(_gameService.GetCurrentGameState());
 
             if (input.Equals("resign", StringComparison.OrdinalIgnoreCase))
             {
@@ -108,5 +108,15 @@ public class GameActions
         }
 
         return false;
+    }
+
+    private string TurnInputPrompt(GameStateSnapshot gameState)
+    {
+        if (gameState.GetPlayer(_gameService.PlayerId).Value.IsInCheck)
+        {
+            AnsiConsole.MarkupLine("[bold red]You are in check! You must protect your king![/]");
+        }
+        
+        return AnsiConsole.Ask<string>("[bold green]Your move:[/]").Trim();
     }
 }

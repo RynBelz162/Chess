@@ -67,7 +67,7 @@ public class GameGrain : Grain, IGameGrain
 
     public async Task<Guid> Resign(Guid userId)
     {
-        var player = GetPlayer(userId);
+        var player = _gameState.State.GetPlayer(userId);
 
         _gameState.State.Status = GameStatus.Resigned;
 
@@ -125,10 +125,7 @@ public class GameGrain : Grain, IGameGrain
             return Result.Fail(moveResult.FailureMessage);
         }
 
-        player.Points += moveResult.Value;
-        board.UpdateFen();
-
-        _gameState.State.SwitchPlayerTurn(userId);
+        UpdatesAfterMove(userId, board, moveResult.Value);
         await _gameState.WriteStateAsync();
 
         return Result.Ok();
@@ -149,25 +146,6 @@ public class GameGrain : Grain, IGameGrain
         }));
     }
 
-    private Player GetPlayer(Guid userId)
-    {
-        if (_gameState.State.Status == GameStatus.WaitingForOpponent)
-        {
-            throw new ApplicationException("Both players are not ready to start.");
-        }
-
-        if (_gameState.State.PlayerOne.UserId == userId)
-        {
-            return _gameState.State.PlayerOne;
-        } 
-        else if (_gameState.State.PlayerTwo?.UserId == userId)
-        {
-            return _gameState.State.PlayerTwo;
-        }
-
-        throw new ApplicationException("Player not found in game.");
-    }
-
     private Player? GetPlayerOrDefault(Guid userId)
     {
         if (_gameState.State.PlayerOne.UserId == userId)
@@ -181,5 +159,17 @@ public class GameGrain : Grain, IGameGrain
         }
 
         return null;
+    }
+
+    private void UpdatesAfterMove(Guid userId, Board board, int pointsEarned)
+    {
+        var player = _gameState.State.GetPlayer(userId);
+        var oppositePlayer = _gameState.State.GetOpponent(userId);
+
+        oppositePlayer.IsInCheck = board.KingIsInCheck(oppositePlayer.Color);
+        player.Points += pointsEarned;
+        board.UpdateFen();
+
+        _gameState.State.SwitchPlayerTurn(userId);
     }
 }

@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
 
@@ -144,5 +144,33 @@ public class KingTests
         kingPiece.CurrentSquare.Should().Be("C1");
         board.PieceOnSquare("D1").Should().BeOfType<Rook>();
         board.IsSquareOccupied("A1").Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsKingChecked_WhenKingIsNotUnderAttack_ShouldReturnFalse()
+    {
+        var kingPiece = new King(ChessFile.E, 1) { Color = ChessColor.White };
+        var board = new ChessBoardBuilder()
+            .PlacePiece(kingPiece)
+            .CreatePieceAt('R', ChessFile.A, 1)
+            .Build();
+
+        var isChecked = kingPiece.IsKingChecked(board, ChessColor.White);
+
+        isChecked.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsKingChecked_WhenKingIsUnderAttack_ShouldReturnTrue()
+    {
+        var kingPiece = new King(ChessFile.E, 1) { Color = ChessColor.White };
+        var board = new ChessBoardBuilder()
+            .PlacePiece(kingPiece)
+            .CreatePieceAt('r', ChessFile.E, 8)
+            .Build();
+
+        var isChecked = kingPiece.IsKingChecked(board, ChessColor.White);
+
+        isChecked.Should().BeTrue();
     }
 }

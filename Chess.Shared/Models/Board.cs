@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
@@ -36,7 +36,6 @@ public class Board
     public Piece? PieceOnSquare(string targetSquare) =>
         Squares[targetSquare].Piece;
 
-    // Rebuilds CurrentFen (piece placement only) from the current square occupancy.
     public void UpdateFen()
     {
         var sb = new StringBuilder();
@@ -85,4 +84,10 @@ public class Board
             .Where(x => x.Color == color)
             .Where(x => x.AvailableMoves.Any(move => move.Equals(targetMove, StringComparison.OrdinalIgnoreCase)))
             .ToList();
+
+    public bool KingIsInCheck(ChessColor color)
+    {
+        var king = Pieces.First(p => p is King && p.Color == color);
+        return ((King)king).IsKingChecked(this, color);
+    }
 }

@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 
 namespace Chess.Shared.Models.Pieces;
@@ -10,6 +10,48 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
     public override int Value => 1;
 
     private int NextRankForColor => Color == ChessColor.White ? CurrentRank + 1 : CurrentRank - 1;
+
+    public override Result<int> Move(string square, Board board)
+    {
+        var victimSquare = GetEnPassantVictimSquare(square, board);
+
+        var result = base.Move(square, board);
+
+        if (!result.IsSuccess || victimSquare is null)
+        {
+            return result;
+        }
+
+        // En passant: the captured pawn sits beside the origin, not on the target
+        // square, so base.Move did not remove it.
+        if (board.PieceOnSquare(victimSquare) is not { } victim)
+        {
+            return result;
+        }
+
+        victim.IsCaptured = true;
+        board.Pieces.Remove(victim);
+        board.Squares[victimSquare].Piece = null;
+        RecalculateAllMoves(board);
+
+        return Result.Ok(victim.Value);
+    }
+
+    private string? GetEnPassantVictimSquare(string square, Board board)
+    {
+        if (square.Length < 2 || square[0] == (char)CurrentFile || board.IsSquareOccupied(square))
+        {
+            return null;
+        }
+
+        var victimSquare = $"{square[0]}{CurrentRank}";
+        if (board.PieceOnSquare(victimSquare) is Pawn victim && victim.Color != Color)
+        {
+            return victimSquare;
+        }
+
+        return null;
+    }
 
     public override List<string> RecalculateAvailableMoves(Board board)
     {
@@ -32,22 +74,26 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 
     private void AddForwardMoves(ICollection<string> moves, Board board)
     {
-        var targetSquare = $"{CurrentFile}{NextRankForColor}";
-        if(!board.IsSquareOccupied(targetSquare))
+        var oneSquare = $"{CurrentFile}{NextRankForColor}";
+        if (board.IsSquareOccupied(oneSquare))
         {
-            moves.Add(targetSquare);
+            // Blocked directly ahead: cannot advance one or two squares.
+            return;
         }
 
-        if (NumberOfMoves > 0 && (NextRankForColor != 1 || NextRankForColor != 8))
+        moves.Add(oneSquare);
+
+        // The two-square advance is only available from the pawn's starting rank.
+        if (NumberOfMoves > 0)
         {
             return;
         }
 
-        var targetRank = Color == ChessColor.White ? NextRankForColor + 1 : NextRankForColor - 1;
-        var targetSecondSquare = $"{CurrentFile}{targetRank}";
-        if(!board.IsSquareOccupied(targetSquare))
+        var twoRank = Color == ChessColor.White ? NextRankForColor + 1 : NextRankForColor - 1;
+        var twoSquare = $"{CurrentFile}{twoRank}";
+        if (!board.IsSquareOccupied(twoSquare))
         {
-            moves.Add(targetSecondSquare);
+            moves.Add(twoSquare);
         }
     }
 
@@ -77,10 +123,15 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
 
     private void CheckForEnPassant(ICollection<string> moves, Board board, ChessFile file, int rank)
     {
-        var nextToPawn = $"{file}{CurrentRank}";
-        var IsOccupied = board.IsSquareOccupied(nextToPawn);
+        // En passant is only possible from the 5th rank (White) or the 4th rank (Black).
+        var enPassantRank = Color == ChessColor.White ? 5 : 4;
+        if (CurrentRank != enPassantRank)
+        {
+            return;
+        }
 
-        if (!IsOccupied)
+        var nextToPawn = $"{file}{CurrentRank}";
+        if (!board.IsSquareOccupied(nextToPawn))
         {
             return;
         }
@@ -90,8 +141,9 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
             return;
         }
 
-        var pieceNextToPawn = board.PieceOnSquare(nextToPawn);
-        if (pieceNextToPawn?.NumberOfMoves == 0 && pieceNextToPawn is Pawn)
+        // The victim must be a pawn that just advanced two squares off its home
+        // rank, so it has moved exactly once.
+        if (board.PieceOnSquare(nextToPawn) is Pawn { NumberOfMoves: 1 })
         {
             moves.Add($"{file}{rank}");
         }

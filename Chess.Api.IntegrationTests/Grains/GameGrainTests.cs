@@ -162,4 +162,24 @@ public class GameGrainTests(ClusterFixture fixture)
 
         result.IsSuccess.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task Move_WhenSamePawnPushedAgain_ShouldNotBeAmbiguous()
+    {
+        // Regression: a second push (e4->e5) used to be reported ambiguous because
+        // the black e7 pawn's two-square advance also targets e5. Candidate pieces
+        // must be filtered by the moving player's color.
+        var playerOne = Guid.NewGuid();
+        var playerTwo = Guid.NewGuid();
+        var game = NewGameGrain();
+        await game.Create(playerOne);
+        await game.Join(playerTwo);
+
+        (await game.Move("e4", playerOne)).IsSuccess.Should().BeTrue();
+        (await game.Move("a6", playerTwo)).IsSuccess.Should().BeTrue();
+
+        var secondPush = await game.Move("e5", playerOne);
+
+        secondPush.IsSuccess.Should().BeTrue();
+    }
 }

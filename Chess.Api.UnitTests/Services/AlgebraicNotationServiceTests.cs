@@ -44,6 +44,25 @@ public class AlgebraicNotationServiceTests
         result.Should().BeEquivalentTo(expected);
     }
 
+    [Fact]
+    public void GetRequest_WhenEnemyPawnSharesTargetSquare_ShouldResolveByColor()
+    {
+        // White pawn on E4 (already moved) pushes to E5. The black E7 pawn's
+        // two-square advance also targets E5, so the candidates are only
+        // unambiguous once filtered by the moving player's color.
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('P', ChessFile.E, 4, 1)
+            .CreatePieceAt('p', ChessFile.E, 7, 0)
+            .Build();
+
+        var result = _algebraicNotationService.GetRequest("e5", board, ChessColor.White);
+
+        result.IsValid.Should().BeTrue();
+        result.PieceType.Should().Be(typeof(Pawn));
+        result.PieceSquare.Should().Be("E4");
+        result.TargetSquare.Should().Be("E5");
+    }
+
     private static Board WhiteCastleReadyBoard() =>
         new ChessBoardBuilder()
             .CreatePieceAt('K', ChessFile.E, 1)

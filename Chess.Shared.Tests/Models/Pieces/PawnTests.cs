@@ -1,4 +1,4 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Helpers;
 using Chess.Shared.Models.Pieces;
 
@@ -82,19 +82,20 @@ public class PawnTests
     [Fact]
     public void RecalculateAvailableMoves_WhenWhiteAndEnPassantAvailable_ShouldAllowEnPassant()
     {
-        var pawn = new Pawn(ChessFile.B, 2)
+        var pawn = new Pawn(ChessFile.B, 5)
         {
             Color = ChessColor.White,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt('p', ChessFile.A, 2, 0)
-            .CreatePieceAt('p', ChessFile.C, 2, 0)
+            .CreatePieceAt('p', ChessFile.A, 5, 1)
+            .CreatePieceAt('p', ChessFile.C, 5, 1)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B3", "B4", "C3", "A3"];
+        List<string> expectedMoves = ["B6", "C6", "A6"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
@@ -107,39 +108,43 @@ public class PawnTests
     [InlineData('k')]
     public void RecalculateAvailableMoves_WhenWhiteAndTargetIsNotPawn_ShouldNotAllowEnPassant(char pieceIdentifier)
     {
-        var pawn = new Pawn(ChessFile.B, 2)
+        var pawn = new Pawn(ChessFile.B, 5)
         {
             Color = ChessColor.White,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt(pieceIdentifier, ChessFile.A, 2, 0)
-            .CreatePieceAt(pieceIdentifier, ChessFile.C, 2, 0)
+            .CreatePieceAt(pieceIdentifier, ChessFile.A, 5, 1)
+            .CreatePieceAt(pieceIdentifier, ChessFile.C, 5, 1)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B3", "B4"];
+        List<string> expectedMoves = ["B6"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_WhenWhiteAndAlreadyMovedFromStart_ShouldNotAllowEnPassant()
+    public void RecalculateAvailableMoves_WhenWhiteAndVictimMovedMoreThanOnce_ShouldNotAllowEnPassant()
     {
-        var pawn = new Pawn(ChessFile.B, 2)
+        // A pawn that has moved more than once did not just double-move, so it is
+        // no longer a valid en passant victim.
+        var pawn = new Pawn(ChessFile.B, 5)
         {
             Color = ChessColor.White,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt('p', ChessFile.A, 2, 1)
-            .CreatePieceAt('p', ChessFile.C, 2, 1)
+            .CreatePieceAt('p', ChessFile.A, 5, 2)
+            .CreatePieceAt('p', ChessFile.C, 5, 2)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B3", "B4"];
+        List<string> expectedMoves = ["B6"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
@@ -194,19 +199,22 @@ public class PawnTests
     [Fact]
     public void RecalculateAvailableMoves_WhenBlackAndEnPassantAvailable_ShouldAllowEnPassant()
     {
-        var pawn = new Pawn(ChessFile.B, 6)
+        // Black pawn on its 4th rank; white pawns either side just advanced two
+        // squares off their home rank (NumberOfMoves == 1).
+        var pawn = new Pawn(ChessFile.B, 4)
         {
             Color = ChessColor.Black,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt('P', ChessFile.A, 6, 0)
-            .CreatePieceAt('P', ChessFile.C, 6, 0)
+            .CreatePieceAt('P', ChessFile.A, 4, 1)
+            .CreatePieceAt('P', ChessFile.C, 4, 1)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B5", "B4", "C5", "A5"];
+        List<string> expectedMoves = ["B3", "C3", "A3"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
@@ -219,41 +227,184 @@ public class PawnTests
     [InlineData('K')]
     public void RecalculateAvailableMoves_WhenBlackAndTargetIsNotPawn_ShouldNotAllowEnPassant(char pieceIdentifier)
     {
-        var pawn = new Pawn(ChessFile.B, 5)
+        var pawn = new Pawn(ChessFile.B, 4)
         {
             Color = ChessColor.Black,
-            NumberOfMoves = 3,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt(pieceIdentifier, ChessFile.A, 5, 0)
-            .CreatePieceAt(pieceIdentifier, ChessFile.C, 5, 0)
+            .CreatePieceAt(pieceIdentifier, ChessFile.A, 4, 1)
+            .CreatePieceAt(pieceIdentifier, ChessFile.C, 4, 1)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B4"];
+        List<string> expectedMoves = ["B3"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
     }
 
     [Fact]
-    public void RecalculateAvailableMoves_WhenBlackAndAlreadyMovedFromStart_ShouldNotAllowEnPassant()
+    public void RecalculateAvailableMoves_WhenBlackAndVictimMovedMoreThanOnce_ShouldNotAllowEnPassant()
     {
-        var pawn = new Pawn(ChessFile.B, 7)
+        var pawn = new Pawn(ChessFile.B, 4)
         {
             Color = ChessColor.Black,
+            NumberOfMoves = 1,
         };
 
         var mockBoard = new ChessBoardBuilder()
-            .CreatePieceAt('P', ChessFile.A, 7, 1)
-            .CreatePieceAt('P', ChessFile.C, 7, 1)
+            .CreatePieceAt('P', ChessFile.A, 4, 2)
+            .CreatePieceAt('P', ChessFile.C, 4, 2)
             .PlacePiece(pawn)
             .Build();
 
         var moves = pawn.RecalculateAvailableMoves(mockBoard);
-        List<string> expectedMoves = ["B6", "B5"];
+        List<string> expectedMoves = ["B3"];
 
         moves.Should().BeEquivalentTo(expectedMoves);
+    }
+
+    [Fact]
+    public void Move_WhenWhiteCapturesEnPassant_ShouldRemoveVictimPawn()
+    {
+        // White pawn on its 5th rank; black pawn beside it just double-moved
+        // (NumberOfMoves == 1). Capturing to C6 removes the victim on C5.
+        var pawn = new Pawn(ChessFile.B, 5)
+        {
+            Color = ChessColor.White,
+            NumberOfMoves = 1,
+        };
+
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('p', ChessFile.C, 5, 1)
+            .PlacePiece(pawn)
+            .Build();
+
+        var result = pawn.Move("C6", board);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+        pawn.CurrentSquare.Should().Be("C6");
+        board.IsSquareOccupied("C5").Should().BeFalse();
+        board.Pieces.Should().NotContain(p => p is Pawn && p.Color == ChessColor.Black);
+    }
+
+    [Fact]
+    public void Move_WhenBlackCapturesEnPassant_ShouldRemoveVictimPawn()
+    {
+        // Black pawn on its 4th rank; white pawn beside it just double-moved
+        // (NumberOfMoves == 1). Capturing to A3 removes the victim on A4.
+        var pawn = new Pawn(ChessFile.B, 4)
+        {
+            Color = ChessColor.Black,
+            NumberOfMoves = 1,
+        };
+
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('P', ChessFile.A, 4, 1)
+            .PlacePiece(pawn)
+            .Build();
+
+        var result = pawn.Move("A3", board);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+        pawn.CurrentSquare.Should().Be("A3");
+        board.IsSquareOccupied("A4").Should().BeFalse();
+        board.Pieces.Should().NotContain(p => p is Pawn && p.Color == ChessColor.White);
+    }
+
+    [Fact]
+    public void Move_WhenNormalDiagonalCapture_ShouldNotRemoveAdjacentPawn()
+    {
+        var pawn = new Pawn(ChessFile.B, 2)
+        {
+            Color = ChessColor.White,
+        };
+
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('p', ChessFile.A, 3, 1)
+            .CreatePieceAt('p', ChessFile.A, 2, 1)
+            .PlacePiece(pawn)
+            .Build();
+
+        var result = pawn.Move("A3", board);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+        pawn.CurrentSquare.Should().Be("A3");
+        board.IsSquareOccupied("A2").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Move_WhenForwardMove_ShouldNotTriggerEnPassant()
+    {
+        var pawn = new Pawn(ChessFile.B, 2)
+        {
+            Color = ChessColor.White,
+        };
+
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('p', ChessFile.C, 2, 0)
+            .PlacePiece(pawn)
+            .Build();
+
+        var result = pawn.Move("B3", board);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(0); // nothing captured
+        board.IsSquareOccupied("C2").Should().BeTrue(); // neighbor untouched
+    }
+
+    [Fact]
+    public void Move_WhenSamePawnMovesTwice_ShouldAdvanceBothTimes()
+    {
+        // Regression: a pawn must keep its single forward move after it has
+        // already moved once.
+        var pawn = new Pawn(ChessFile.B, 2)
+        {
+            Color = ChessColor.White,
+        };
+
+        var board = new ChessBoardBuilder()
+            .PlacePiece(pawn)
+            .Build();
+
+        pawn.Move("B3", board).IsSuccess.Should().BeTrue();
+        pawn.NumberOfMoves.Should().Be(1);
+        pawn.AvailableMoves.Should().Contain("B4");
+
+        var second = pawn.Move("B4", board);
+
+        second.IsSuccess.Should().BeTrue();
+        pawn.CurrentSquare.Should().Be("B4");
+        pawn.NumberOfMoves.Should().Be(2);
+    }
+
+    [Fact]
+    public void Move_WhenCapturingUnmovedPawn_ShouldCapture()
+    {
+        // Regression: a normal diagonal capture must work regardless of how many
+        // times the victim has moved (here, never).
+        var pawn = new Pawn(ChessFile.B, 4)
+        {
+            Color = ChessColor.White,
+        };
+
+        var board = new ChessBoardBuilder()
+            .CreatePieceAt('p', ChessFile.C, 5, 0)
+            .PlacePiece(pawn)
+            .Build();
+
+        pawn.AvailableMoves.Should().Contain("C5");
+
+        var result = pawn.Move("C5", board);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().Be(1);
+        pawn.CurrentSquare.Should().Be("C5");
+        board.Pieces.Should().NotContain(p => p is Pawn && p.Color == ChessColor.Black);
     }
 }

@@ -31,13 +31,13 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
             return castleMove;
         }
 
-        var pawnMove = PawnMoves(move, board);
+        var pawnMove = PawnMoves(move, board, color);
         if (pawnMove is not null)
         {
             return pawnMove;
         }
 
-        var nonPawnMove = NonPawnMoves(move, board);
+        var nonPawnMove = NonPawnMoves(move, board, color);
         if (nonPawnMove is not null)
         {
             return nonPawnMove;
@@ -114,7 +114,7 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
         return null;
     }
 
-    private static MovementRequest? PawnMoves(string move, Board board)
+    private static MovementRequest? PawnMoves(string move, Board board, ChessColor color)
     {
         // first character is not a pawn move
         var firstChar = move[0];
@@ -128,13 +128,13 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
 
         return matches.Count switch
         {
-            1 => CreateResult(typeof(Pawn), board, matches[0].Value),
-            2 => CreateResult(typeof(Pawn), board, matches[1].Value, matches[0].Value),
+            1 => CreateResult(typeof(Pawn), board, color, matches[0].Value),
+            2 => CreateResult(typeof(Pawn), board, color, matches[1].Value, matches[0].Value),
             _ => MovementRequest.InvalidMove
         };
     }
 
-    private static MovementRequest? NonPawnMoves(string move, Board board)
+    private static MovementRequest? NonPawnMoves(string move, Board board, ChessColor color)
     {
         var piece = move[0];
         var pieceType = ChessPieceHelper.TypeFromIdentifier(piece);
@@ -148,17 +148,17 @@ public partial class AlgebraicNotationService : IAlgebraicNotationService
 
         return matches.Count switch
         {
-            1 => CreateResult(pieceType, board, matches[0].Value),
-            2 => CreateResult(pieceType, board, matches[1].Value, matches[0].Value),
+            1 => CreateResult(pieceType, board, color, matches[0].Value),
+            2 => CreateResult(pieceType, board, color, matches[1].Value, matches[0].Value),
             _ => MovementRequest.InvalidMove
         };
     }
 
-    private static MovementRequest CreateResult(Type pieceType, Board board, string targetSquare, string? fromSquare = null)
+    private static MovementRequest CreateResult(Type pieceType, Board board, ChessColor color, string targetSquare, string? fromSquare = null)
     {
         if (fromSquare is null)
         {
-            var piecesMoving = board.PieceWithAvailableMove(pieceType, targetSquare);
+            var piecesMoving = board.PieceWithAvailableMove(pieceType, targetSquare, color);
             if (piecesMoving.Count != 1)
             {
                 return MovementRequest.AmbiguousMove;

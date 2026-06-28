@@ -47,11 +47,13 @@ public abstract class Piece(ChessFile chessFile, int rank)
         CurrentFile = (ChessFile)square[0];
         CurrentRank = square[1] - '0';
 
+        NumberOfMoves++;
+
         // recalculate the available moves for all other pieces on the board,
         // since this move may have opened up new moves for other pieces.
+        // Must run after NumberOfMoves++ so this piece recomputes with its
+        // updated move count (e.g. a pawn loses its two-square advance).
         RecalculateAllMoves(board);
-
-        NumberOfMoves++;
 
         return Result.Ok(capturedValue);
     }

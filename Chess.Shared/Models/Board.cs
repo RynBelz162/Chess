@@ -79,9 +79,10 @@ public class Board
         CurrentFen = sb.ToString();
     }
 
-    public List<Piece> PieceWithAvailableMove(Type pieceType, string targetMove) =>
+    public List<Piece> PieceWithAvailableMove(Type pieceType, string targetMove, ChessColor color) =>
         Pieces
             .Where(x => x.GetType() == pieceType)
+            .Where(x => x.Color == color)
             .Where(x => x.AvailableMoves.Any(move => move.Equals(targetMove, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 }

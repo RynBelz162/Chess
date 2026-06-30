@@ -57,8 +57,9 @@ public class King(ChessFile chessFile, int rank) : Piece(chessFile, rank)
     {
         var attackingColor = color == ChessColor.White ? ChessColor.Black : ChessColor.White;
 
-        return board.Pieces
-            .Any(p => p.Color == attackingColor && p.AvailableMoves.Contains(CurrentSquare));
+        // Compute attacks fresh so the result is independent of pin-filtering,
+        // which strips moves from the cached AvailableMoves of pinned pieces.
+        return board.IsSquareAttackedBy(CurrentSquare, attackingColor);
     }
 
     private void Forwards(ICollection<string> moves, Board board)

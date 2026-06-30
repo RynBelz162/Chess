@@ -171,5 +171,22 @@ public class GameGrain : Grain, IGameGrain
         board.UpdateFen();
 
         _gameState.State.SwitchPlayerTurn(userId);
+
+        ResolveGameEnd(board, player, oppositePlayer);
+    }
+
+    // After a move it is the opponent's turn; if they have no legal reply the
+    // game is over by checkmate (this player wins) or stalemate (a draw).
+    private void ResolveGameEnd(Board board, Player player, Player oppositePlayer)
+    {
+        if (board.IsCheckmated(oppositePlayer.Color))
+        {
+            _gameState.State.Status = GameStatus.Checkmate;
+            _gameState.State.WinnerUserId = player.UserId;
+        }
+        else if (board.IsStalemated(oppositePlayer.Color))
+        {
+            _gameState.State.Status = GameStatus.Stalemate;
+        }
     }
 }

@@ -1,5 +1,6 @@
-using Chess.Shared.Constants;
+﻿using Chess.Shared.Constants;
 using Chess.Shared.Models;
+using Chess.Shared.Models.Movement;
 using Chess.Shared.Models.Pieces;
 
 namespace Chess.Shared.Helpers;
@@ -14,6 +15,10 @@ public class ChessBoardBuilder
         {
             piece.AvailableMoves = piece.RecalculateAvailableMoves(_board);
         });
+
+        // Filters mutate the shared board, so they run after the parallel
+        // recalculation has fully populated every piece's moves.
+        MoveFilters.Apply(_board);
 
         return _board;
     }

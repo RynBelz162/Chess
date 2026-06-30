@@ -4,5 +4,7 @@ public enum GameStatus
 {
     WaitingForOpponent,
     InProgress,
-    Resigned
+    Resigned,
+    Checkmate,
+    Stalemate
 }

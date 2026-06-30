@@ -37,6 +37,9 @@ public class Pawn(ChessFile chessFile, int rank) : Piece(chessFile, rank)
         return Result.Ok(victim.Value);
     }
 
+    public override string CapturedSquare(string targetSquare, Board board) =>
+        GetEnPassantVictimSquare(targetSquare, board) ?? targetSquare;
+
     private string? GetEnPassantVictimSquare(string square, Board board)
     {
         if (square.Length < 2 || square[0] == (char)CurrentFile || board.IsSquareOccupied(square))

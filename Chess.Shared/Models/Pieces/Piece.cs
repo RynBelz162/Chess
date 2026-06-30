@@ -1,4 +1,5 @@
 ﻿using Chess.Shared.Constants;
+using Chess.Shared.Models.Movement;
 
 namespace Chess.Shared.Models.Pieces;
 
@@ -71,12 +72,29 @@ public abstract class Piece(ChessFile chessFile, int rank)
         NumberOfMoves++;
     }
 
+    // Reversibly repositions the piece without touching move count or the board.
+    // Used by pin detection to test a hypothetical move and then undo it.
+    internal void SetSquare(ChessFile file, int rank)
+    {
+        CurrentFile = file;
+        CurrentRank = rank;
+    }
+
+    // The square holding the piece this move would capture. For nearly every
+    // move that is the target square itself; pawns override it so en passant,
+    // where the captured pawn sits beside the origin, is simulated correctly.
+    public virtual string CapturedSquare(string targetSquare, Board board) => targetSquare;
+
     protected static void RecalculateAllMoves(Board board)
     {
         foreach (var remaining in board.Pieces.Where(p => !p.IsCaptured))
         {
             remaining.AvailableMoves = remaining.RecalculateAvailableMoves(board);
         }
+
+        // Drop any move that would leave the moving piece's own king in check
+        // (pins) or move the king itself into check.
+        MoveFilters.Apply(board);
     }
 
     public abstract List<string> RecalculateAvailableMoves(Board board);

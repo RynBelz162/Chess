@@ -99,6 +99,8 @@ The Chess.Console project provides an interactive command-line interface for pla
    - **Join Game**: Join an existing game
    - **Play**: Make moves using algebraic notation (e.g., `e2e4`)
 
+![game play screenshot](./screenshots/example_1.png)
+
 ### Console Features
 - Interactive menu-driven gameplay
 - Real-time game updates via SignalR
